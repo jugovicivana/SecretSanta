@@ -483,3 +483,9 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 API/appsettings.Development.json
+
+# Ignore obj folder
+**/obj/
+
+# Ignore bin folder
+**/bin/
