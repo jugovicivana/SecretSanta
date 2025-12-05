@@ -27,7 +27,7 @@ namespace API.Services
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.GivenName, user.FirstName),
                 new Claim(ClaimTypes.Surname, user.LastName),
-                new Claim("Role", user.Role.Name)
+                new Claim(ClaimTypes.Role, user.Role.Name)
              };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:TokenKey"]));

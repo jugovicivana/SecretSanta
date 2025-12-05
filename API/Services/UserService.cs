@@ -7,6 +7,8 @@ using API.Data;
 using API.DTOs;
 using API.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
@@ -87,7 +89,7 @@ namespace API.Services
             }
             if (user.Role.Name == "Admin" && !user.IsApproved)
                 throw new Exception("Admin account čeka odobrenje postojećeg Admin-a");
-            var token =await _tokenService.GenerateToken(user);
+            var token = await _tokenService.GenerateToken(user);
 
             return new UserTokenDto
             {
@@ -116,7 +118,7 @@ namespace API.Services
 
             return _mapper.Map<UserDto>(user);
         }
-       
+
         public async Task<UserDto> ApproveAdminAsync(int adminUserId)
         {
             var userToApprove = await _context.Users
@@ -136,6 +138,18 @@ namespace API.Services
             await _context.SaveChangesAsync();
 
             return _mapper.Map<UserDto>(userToApprove);
+
+        }
+          // Dodaj i ovu metodu za dobavljanje neodobrenih admina
+        public async Task<List<UserDto>> GetPendingAdmins()
+        {
+            var pendingAdmins = await _context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Role.Name == "Admin" && !u.IsApproved)
+                .OrderBy(u => u.Id)
+                .ToListAsync();
+
+            return _mapper.Map<List<UserDto>>(pendingAdmins);
         }
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
@@ -155,5 +169,27 @@ namespace API.Services
             }
         }
 
+        public async Task<int> RejectAdminRequest(int adminUserId) // Promijenjen return type
+        {
+            var user = await _context.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == adminUserId);
+
+            if (user == null)
+                throw new Exception("Korisnik nije pronađen");
+
+            if (user.Role.Name != "Admin")
+                throw new Exception("Korisnik nije Admin");
+
+            if (user.IsApproved)
+                throw new Exception("Admin je već odobren - ne može se odbiti");
+
+            int deletedUserId = user.Id; // Sačuvaj ID prije brisanja
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return deletedUserId; // Vrati ID obrisanog korisnika
+        }
     }
 }

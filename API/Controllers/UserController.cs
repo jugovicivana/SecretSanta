@@ -82,7 +82,20 @@ namespace API.Controllers
                 return StatusCode(500, new { message = ex.Message });
             }
         }
-
+        [Authorize(Roles = "Admin")]
+        [HttpGet("pending-admins")]
+        public async Task<ActionResult<List<UserDto>>> GetPendingAdmins()
+        {
+            try
+            {
+                var pendingAdmins = await _userService.GetPendingAdmins();
+                return Ok(pendingAdmins);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
         [Authorize(Roles = "Admin")]
         [HttpPut("approve-admin/{id}")]
         public async Task<ActionResult<UserDto>> ApproveAdmin(int id)
@@ -98,12 +111,37 @@ namespace API.Controllers
                 {
                     return BadRequest(new { message = ex.Message });
                 }
-                
+
                 if (ex.Message.Contains("već odobren"))
                 {
                     return Conflict(new { message = ex.Message });
                 }
-                
+
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("reject-admin/{id}")]
+        public async Task<ActionResult> RejectAdmin(int id)
+        {
+            try
+            {
+                var deletedUserId = await _userService.RejectAdminRequest(id);
+                return Ok(new
+                {
+                    deletedUserId,
+                    message = $"Korisnik sa ID {deletedUserId} je odbijen i obrisan."
+                });
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("nije Admin"))
+                    return BadRequest(new { message = ex.Message });
+
+                if (ex.Message.Contains("već odobren"))
+                    return Conflict(new { message = ex.Message });
+
                 return StatusCode(500, new { message = ex.Message });
             }
         }

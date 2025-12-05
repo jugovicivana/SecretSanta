@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using API.DTOs;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Services
 {
@@ -13,6 +14,9 @@ namespace API.Services
         Task<UserDto> GetUserById(int id);
         Task<List<UserDto>> GetAllUsers();
         Task<UserDto> ApproveAdminAsync(int adminUserId);
+        Task<int> RejectAdminRequest(int adminUserId);
+        Task<List<UserDto>> GetPendingAdmins(); // Dodaj i ovu
+
 
     }
 }

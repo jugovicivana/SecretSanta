@@ -36,6 +36,7 @@ builder.Services.AddDbContext<StoreContext>(options =>
 
 builder.Services.AddAutoMapper(typeof(API.Mapping.AutoMapper).Assembly);
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<TokenService>();
 
 builder.Services.AddCors();
