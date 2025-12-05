@@ -15,8 +15,7 @@ namespace API.Models
         public string LastName { get; set; } = string.Empty;
         public int RoleId { get; set; }
         public Role Role { get; set; } = null!;
-        public List<Pair>? GivenPairs { get; set; }
-        public List<Pair>? ReceivedPairs { get; set; }
+        public bool IsApproved { get; set; } = false; 
 
     }
 }
