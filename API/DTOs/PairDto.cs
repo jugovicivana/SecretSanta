@@ -11,7 +11,10 @@ namespace API.DTOs
         public int Year { get; set; }
         public DateTime CreatedAt { get; set; }
         public int GiverId { get; set; }        
+        public UserDto Giver {get;set;}
         public int ReceiverId { get; set; }
+        public UserDto Receiver {get;set;}
+
     }
     
 }

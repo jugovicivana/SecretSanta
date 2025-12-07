@@ -9,6 +9,7 @@ using API.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Services
@@ -18,15 +19,12 @@ namespace API.Services
         private readonly StoreContext _context;
         private readonly IMapper _mapper;
         private readonly TokenService _tokenService;
-
-
         public UserService(StoreContext context, IMapper mapper, TokenService tokenService)
         {
             _context = context;
             _mapper = mapper;
             _tokenService = tokenService;
         }
-
         public async Task<UserDto> Register(RegisterDto registerDto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
@@ -63,7 +61,6 @@ namespace API.Services
                 RoleId = role?.Id ?? (isAdmin ? 2 : 1),
                 IsApproved = isApproved,
                 Role = role,
-
             };
 
             CreatePasswordHash(registerDto.Password, out byte[] passwordHash, out byte[] passwordSalt);
@@ -101,17 +98,31 @@ namespace API.Services
         public async Task<List<UserDto>> GetAllUsers()
         {
             var users = await _context.Users
-       .Include(u => u.Role)
-       .ToListAsync();
+                .Include(u => u.Role)
+                .ToListAsync();
 
             return _mapper.Map<List<UserDto>>(users);
         }
-
-        public async Task<UserDto> GetUserById(int id)
+        public async Task<UserTokenDto> GetCurrentUser(int userId, string token)
         {
             var user = await _context.Users
                    .Include(u => u.Role)
-                   .FirstOrDefaultAsync(u => u.Id == id);
+                   .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                throw new Exception("Korisnik nije pronađen");
+
+            return new UserTokenDto
+            {
+                User = _mapper.Map<UserDto>(user),
+                Token = token
+            };
+        }
+        public async Task<UserDto> GetUserById(int userId)
+        {
+            var user = await _context.Users
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 throw new Exception("Korisnik nije pronađen");
@@ -140,7 +151,6 @@ namespace API.Services
             return _mapper.Map<UserDto>(userToApprove);
 
         }
-          // Dodaj i ovu metodu za dobavljanje neodobrenih admina
         public async Task<List<UserDto>> GetPendingAdmins()
         {
             var pendingAdmins = await _context.Users
@@ -151,25 +161,7 @@ namespace API.Services
 
             return _mapper.Map<List<UserDto>>(pendingAdmins);
         }
-        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-            }
-        }
-
-        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
-        {
-            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
-            {
-                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-                return computedHash.SequenceEqual(passwordHash); //poredimo hesiranu vrijednost unesene sifre, sa hesiranom vrijednoscu u bazi
-            }
-        }
-
-        public async Task<int> RejectAdminRequest(int adminUserId) // Promijenjen return type
+        public async Task<int> RejectAdminRequest(int adminUserId) 
         {
             var user = await _context.Users
                 .Include(u => u.Role)
@@ -184,12 +176,31 @@ namespace API.Services
             if (user.IsApproved)
                 throw new Exception("Admin je već odobren - ne može se odbiti");
 
-            int deletedUserId = user.Id; // Sačuvaj ID prije brisanja
+            int deletedUserId = user.Id; 
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return deletedUserId; // Vrati ID obrisanog korisnika
+            return deletedUserId; 
         }
+
+        private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+        {
+            using (var hmac = new System.Security.Cryptography.HMACSHA512())
+            {
+                passwordSalt = hmac.Key;
+                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+            }
+        }
+
+        private bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt)
+        {
+            using (var hmac = new System.Security.Cryptography.HMACSHA512(passwordSalt))
+            {
+                var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
+                return computedHash.SequenceEqual(passwordHash);
+            }
+        }
+
     }
 }

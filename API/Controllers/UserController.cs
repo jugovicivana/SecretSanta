@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using API.Data;
 using API.DTOs;
@@ -29,7 +30,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return Unauthorized(new { message = ex.Message });
+                return Unauthorized(ex.Message);
             }
         }
 
@@ -45,13 +46,54 @@ namespace API.Controllers
             {
                 if (ex.Message.Contains("Već postoji"))
                 {
-                    return BadRequest(new { message = ex.Message });
+                    return BadRequest(ex.Message);
                 }
-                return StatusCode(500, new { message = "Došlo je do greške prilikom registracije" });
+                return StatusCode(500, "Došlo je do greške prilikom registracije");
             }
         }
 
-        [HttpGet("GetAllUsers")]
+        [Authorize]
+        [HttpGet("currentUser")]
+        public async Task<ActionResult<UserTokenDto>> GetCurrentUser()
+        {
+            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return Ok(null);
+            }
+
+            try
+            {
+                var authHeader = Request.Headers["Authorization"].ToString();
+                var token = authHeader.Replace("Bearer ", "");
+
+                if (string.IsNullOrEmpty(token) || token == "Bearer")
+                {
+                    return Ok(null);
+                }
+
+                var userDto = await _userService.GetUserById(userId);
+
+                var result = new UserTokenDto
+                {
+                    User = userDto,
+                    Token = token
+                };
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("nije pronađen"))
+                {
+                    return NotFound(new { message = ex.Message });
+                }
+                return StatusCode(500, new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("getAllUsers")]
         public async Task<ActionResult<List<UserDto>>> GetAllUsers()
         {
             try
@@ -61,11 +103,10 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ex.Message);
             }
         }
-
-        [HttpGet("GetUserById/{id}")]
+        [HttpGet("getUserById")]
         public async Task<ActionResult<UserDto>> GetUserById(int id)
         {
             try
@@ -77,13 +118,13 @@ namespace API.Controllers
             {
                 if (ex.Message.Contains("nije pronađen"))
                 {
-                    return NotFound(new { message = ex.Message });
+                    return NotFound(ex.Message);
                 }
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ex.Message);
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpGet("pending-admins")]
+        [HttpGet("pendingAdmins")]
         public async Task<ActionResult<List<UserDto>>> GetPendingAdmins()
         {
             try
@@ -93,11 +134,11 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ex.Message);
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpPut("approve-admin/{id}")]
+        [HttpPut("approveAdmin/{id}")]
         public async Task<ActionResult<UserDto>> ApproveAdmin(int id)
         {
             try
@@ -109,20 +150,20 @@ namespace API.Controllers
             {
                 if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("nije Admin"))
                 {
-                    return BadRequest(new { message = ex.Message });
+                    return BadRequest(ex.Message);
                 }
 
                 if (ex.Message.Contains("već odobren"))
                 {
-                    return Conflict(new { message = ex.Message });
+                    return Conflict(ex.Message);
                 }
 
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ex.Message);
             }
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("reject-admin/{id}")]
+        [HttpDelete("rejectAdmin/{id}")]
         public async Task<ActionResult> RejectAdmin(int id)
         {
             try
@@ -137,12 +178,12 @@ namespace API.Controllers
             catch (Exception ex)
             {
                 if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("nije Admin"))
-                    return BadRequest(new { message = ex.Message });
+                    return BadRequest(ex.Message);
 
                 if (ex.Message.Contains("već odobren"))
-                    return Conflict(new { message = ex.Message });
+                    return Conflict(ex.Message);
 
-                return StatusCode(500, new { message = ex.Message });
+                return StatusCode(500, ex.Message);
             }
         }
 

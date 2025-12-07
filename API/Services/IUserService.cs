@@ -11,11 +11,12 @@ namespace API.Services
     {
         Task<UserDto> Register(RegisterDto registerDto);
         Task<UserTokenDto> Login(LoginDto loginDto);
-        Task<UserDto> GetUserById(int id);
         Task<List<UserDto>> GetAllUsers();
+        Task<UserTokenDto> GetCurrentUser(int userId, string token);
+        Task<UserDto> GetUserById(int userId);
         Task<UserDto> ApproveAdminAsync(int adminUserId);
+        Task<List<UserDto>> GetPendingAdmins();
         Task<int> RejectAdminRequest(int adminUserId);
-        Task<List<UserDto>> GetPendingAdmins(); // Dodaj i ovu
 
 
     }

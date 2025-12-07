@@ -27,11 +27,10 @@ namespace API.Controllers
             _mapper = mapper;
 
         }
-
-        [HttpGet("GetPairs")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet("getAllPairs")]
         public async Task<ActionResult<List<PairDto>>> GetPairs()
         {
-            Console.WriteLine("USLO U GET");
             var pairs = await _context.Pairs
                 .Include(p => p.Giver)
                 .Include(p => p.Receiver)
@@ -40,15 +39,33 @@ namespace API.Controllers
             return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
 
         }
-        [HttpGet("GetPairsByYear/{year}")]
-        public async Task<ActionResult<List<PairDto>>> GetPairsByYear(int year)
+        [Authorize(Roles = "Admin")]
+        [HttpGet("getPairsForCurrentYear")]
+        public async Task<ActionResult<List<PairDto>>> GetCurrentYearPairs()
+        {
+            var currentYear = DateTime.Now.Year;
+            var pairs = await _context.Pairs
+                           .Include(p => p.Giver)
+                           .Include(p => p.Receiver)
+                           .Where(p => p.Year == currentYear)
+                           .OrderBy(p => p.Giver.FirstName)
+                           .ToListAsync();
+
+            if (!pairs.Any())
+                return NotFound(new { message = $"Nema parova za godinu {currentYear}" });
+
+            return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("getPairsForYear/{year}")]
+        public async Task<ActionResult<List<PairDto>>> GetPairsForYear(int year)
         {
             var pairs = await _context.Pairs
-                .Include(p => p.Giver)
-                .Include(p => p.Receiver)
-                .Where(p => p.Year == year)
-                .OrderBy(p => p.Giver.FirstName)
-                .ToListAsync();
+                           .Include(p => p.Giver)
+                           .Include(p => p.Receiver)
+                           .Where(p => p.Year == year)
+                           .OrderBy(p => p.Giver.FirstName)
+                           .ToListAsync();
 
             if (!pairs.Any())
                 return NotFound(new { message = $"Nema parova za godinu {year}" });
@@ -56,14 +73,7 @@ namespace API.Controllers
             return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
         }
 
-        [HttpGet("GetPairsForCurrentYear")]
-        public async Task<ActionResult<List<PairDto>>> GetCurrentYearPairs()
-        {
-            var currentYear = DateTime.Now.Year;
-            return await GetPairsByYear(currentYear);
-        }
-
-        [HttpGet("GetMyPairs")]
+        [HttpGet("getMyPair")]
         public async Task<ActionResult<PairDto>> GetMyPair()
         {
             var userId = GetCurrentUserId();
@@ -75,35 +85,34 @@ namespace API.Controllers
                 .FirstOrDefaultAsync(p => p.GiverId == userId && p.Year == currentYear);
 
             if (pair == null)
-                return NotFound(new { message = "Nije vam dodeljen par za tekuću godinu" });
+                return NotFound(new { message = "Nije vam dodijeljen par za tekuću godinu" });
 
             return _mapper.Map<PairDto>(pair);
         }
 
-        [HttpGet("MyPair/{year}")]
-        public async Task<ActionResult<PairDto>> GetMyPairForYear(int year)
+        [HttpGet("getMyPairs")]
+        public async Task<ActionResult<List<PairDto>>> GetMyPairs()
         {
             var userId = GetCurrentUserId();
 
-            var pair = await _context.Pairs
+            var pairs = await _context.Pairs
                 .Include(p => p.Giver)
                 .Include(p => p.Receiver)
-                .FirstOrDefaultAsync(p => p.GiverId == userId && p.Year == year);
+                .Where(p => p.GiverId == userId).ToListAsync();
 
-            if (pair == null)
-                return NotFound(new { message = $"Nije vam dodeljen par za godinu {year}" });
+            if (pairs == null)
+                return NotFound(new { message = "Nije vam dodijeljen par ni za jednu godinu" });
 
-            return _mapper.Map<PairDto>(pair);
+            return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPost("GeneratePairsForCurrentYear")]
+        [HttpPost("generatePairs")]
         public async Task<ActionResult> GeneratePairsForCurrentYear()
         {
             try
             {
                 var currentYear = DateTime.Now.Year;
-
                 var existingPairs = await _context.Pairs
                     .AnyAsync(p => p.Year == currentYear);
 
@@ -124,7 +133,7 @@ namespace API.Controllers
                     return BadRequest(new { message = "Potrebno je najmanje 2 zaposlena za realizaciju" });
                 }
 
-                var pairs = _giftService.GeneratePairsForYear(users, currentYear);
+                var pairs = _giftService.GeneratePairs(users);
 
                 if (!_giftService.ValidatePairs(pairs, users))
                 {
@@ -147,83 +156,27 @@ namespace API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-        [Authorize(Roles = "Admin")]
-        [HttpPost("GeneratePairs/{year}")]
-        public async Task<ActionResult> GeneratePairsForYear(int year)
-        {
-            try
-            {
-                Console.WriteLine("USLO U OVO");
-                var existingPairs = await _context.Pairs
-                    .AnyAsync(p => p.Year == year);
-
-                if (existingPairs)
-                {
-                    return Conflict(new
-                    {
-                        message = $"Parovi za godinu {year} već postoje. Prvo ih obrišite."
-                    });
-                }
-
-                var users = await _context.Users
-                    .Where(u => u.IsApproved && u.Role.Name == "Employee")
-                    .ToListAsync();
-
-                if (users.Count < 2)
-                {
-                    return BadRequest(new { message = "Potrebno je najmanje 2 zaposlenih za realizaciju" });
-                }
-
-                var pairs = _giftService.GeneratePairsForYear(users, year);
-
-                if (!_giftService.ValidatePairs(pairs, users))
-                {
-                    return BadRequest(new { message = "Generisani parovi nisu validni" });
-                }
-
-                await _context.Pairs.AddRangeAsync(pairs);
-                await _context.SaveChangesAsync();
-
-                return Ok(new
-                {
-                    message = $"Parovi za godinu {year} su uspješno generisani",
-                    year = year,
-                    pairCount = pairs.Count
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
-        }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("DeletePairsForYear/{year}")]
-        public async Task<ActionResult> DeletePairsForYear(int year)
+        [HttpDelete("resetCurrentYearPairs")]
+        public async Task<ActionResult> ResetCurrentYearPairs()
         {
+            var currentYear = DateTime.Now.Year;
             var pairs = await _context.Pairs
-                .Where(p => p.Year == year)
-                .ToListAsync();
+                            .Where(p => p.Year == currentYear)
+                            .ToListAsync();
 
             if (!pairs.Any())
-                return NotFound(new { message = $"Nema parova za godinu {year}" });
+                return NotFound(new { message = $"Nema parova za godinu {currentYear}" });
 
             _context.Pairs.RemoveRange(pairs);
             await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                message = $"Parovi za godinu {year} su obrisani",
+                message = $"Parovi za godinu {currentYear} su obrisani",
                 deletedCount = pairs.Count
             });
-        }
-
-        [Authorize(Roles = "Admin")]
-        [HttpDelete("ResetCurrentYearPairs")]
-        public async Task<ActionResult> ResetCurrentYearPairs()
-        {
-            var currentYear = DateTime.Now.Year;
-            return await DeletePairsForYear(currentYear);
         }
 
         [HttpGet("years")]
@@ -236,27 +189,6 @@ namespace API.Controllers
                 .ToListAsync();
 
             return Ok(years);
-        }
-
-        [HttpGet("participants")]
-        public async Task<ActionResult<List<UserDto>>> GetParticipants()
-        {
-            var participants = await _context.Users
-                .Where(u => u.IsApproved && u.Role.Name == "Employee")
-                .Select(u => _mapper.Map<PairDto>(u))
-                .ToListAsync();
-
-            return Ok(participants);
-        }
-
-        [HttpGet("participants/count")]
-        public async Task<ActionResult<int>> GetParticipantsCount()
-        {
-            var count = await _context.Users
-                .Where(u => u.IsApproved && u.Role.Name == "Employee")
-                .CountAsync();
-
-            return Ok(count);
         }
 
         private int GetCurrentUserId()

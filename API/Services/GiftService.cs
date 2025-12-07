@@ -11,11 +11,6 @@ namespace API.Services
         private readonly Random _random = new Random();
         public List<Pair> GeneratePairs(List<User> users)
         {
-            return GeneratePairsForYear(users, DateTime.Now.Year);
-        }
-
-        public List<Pair> GeneratePairsForYear(List<User> users, int year)
-        {
             if (users == null || users.Count < 2)
                 throw new ArgumentException("Potrebno je najmanje 2 zaposlenih za generisanje parova");
 
@@ -27,10 +22,8 @@ namespace API.Services
             {
                 var giver = shuffledUsers[i];
                 var receiver = shuffledUsers[(i + 1) % shuffledUsers.Count];
-                // DODATNA PROVJERA ZA SIGURNOST
                 if (giver.Id == receiver.Id)
                 {
-                    // Ovo se NIKADA ne bi trebalo desiti, ali za svaki slučaj
                     throw new InvalidOperationException("Došlo je do greške: giver i receiver su ista osoba!");
                 }
                 pairs.Add(new Pair
@@ -39,40 +32,12 @@ namespace API.Services
                     Receiver = receiver,
                     GiverId = giver.Id,
                     ReceiverId = receiver.Id,
-                    Year = year
+                    Year = DateTime.Now.Year,
                 });
             }
 
-            //var availableReceivers = users.OrderBy(x => _random.Next()).ToList();
-
-            // foreach (var giver in users.OrderBy(x => _random.Next()))
-            // {
-            //     var receiver = availableReceivers.FirstOrDefault(r => r.Id != giver.Id);
-
-            //     if (receiver == null)
-            //     {
-            //         // Zameni sa prvim parom u listi
-            //         var firstPair = pairs[0];
-            //         receiver = firstPair.Receiver;  // Uzmi primaoca od prvog para
-            //         firstPair.Receiver = giver;     // Prvi par dobija ovog davaoca
-            //     }
-
-            //     pairs.Add(new Pair
-            //     {
-            //         Giver = giver,
-            //         Receiver = receiver,
-            //         GiverId = giver.Id,
-            //         ReceiverId = receiver.Id,
-            //         Year = year
-            //     });
-
-            //     // Ukloni primaoca iz dostupnih (ne može primiti dva poklona)
-            //     availableReceivers.Remove(receiver);
-
-            // }
-
-
             return pairs;
+
         }
         public bool ValidatePairs(List<Pair> pairs, List<User> users)
         {
