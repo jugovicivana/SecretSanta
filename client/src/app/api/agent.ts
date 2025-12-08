@@ -27,14 +27,11 @@ axios.interceptors.response.use(
     return response;
   },
   (error: AxiosError) => {
-    if (
-      (error.response?.status == 400 || error.response?.status == 401) &&
-      typeof error.response.data == "string" &&
-      error.response.data != ""
-    ) {
-      toast.error(error.response.data);
+    if (error.response?.status === 500) {
+      toast.error("Došlo je do greške na serveru.");
     }
-    return Promise.reject(error.response);
+
+    return Promise.reject(error);
   }
 );
 

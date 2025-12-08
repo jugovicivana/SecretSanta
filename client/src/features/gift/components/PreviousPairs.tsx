@@ -5,7 +5,6 @@ import {
   Paper,
   Card,
   CardContent,
-  Chip,
   Stack,
   Divider,
   alpha,
@@ -13,11 +12,11 @@ import {
 import HistoryIcon from "@mui/icons-material/History";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import type { Pair } from "../../app/models/pair";
+import type { Pair } from "../../../app/models/pair";
 
 interface PreviousPairsProps {
-  pairs: Pair[] | null; // Niz parova gde je korisnik giver
-  userName: string; // Ime korisnika za personalizaciju
+  pairs: Pair[] | null; 
+  userName: string; 
 }
 
 export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
@@ -35,7 +34,6 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
     );
   }
 
-  // Grupiši parove po godinama
   const pairsByYear = pairs.reduce((acc, pair) => {
     if (!acc[pair.year]) {
       acc[pair.year] = [];
@@ -44,14 +42,12 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
     return acc;
   }, {} as Record<number, Pair[]>);
 
-  // Sortiraj godine opadajuće (najnovija prva)
   const sortedYears = Object.keys(pairsByYear)
     .map(Number)
     .sort((a, b) => b - a);
 
   return (
     <Box>
-      {/* HEADER */}
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
         <Box sx={{ 
           width: 50, 
@@ -74,7 +70,6 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
         </Box>
       </Stack>
 
-      {/* LISTA PO GODINAMA */}
       <Stack spacing={4}>
         {sortedYears.map((year) => (
           <Paper
@@ -83,17 +78,16 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
             sx={{
               p: 3,
               borderRadius: 3,
-              borderLeft: '4px solid',
-              borderLeftColor: '#1B5E20',
-              backgroundColor: alpha('#1B5E20', 0.02),
+              // borderLeft: '3px solid',
+              // borderLeftColor: '#1B5E20',
+              backgroundColor: alpha('#1B5E20', 0.12),
             }}
           >
-            {/* GODINA HEADER */}
             <Stack 
               direction="row" 
               alignItems="center" 
               justifyContent="space-between"
-              sx={{ mb: 3 }}
+              sx={{ mb: 2 }}
             >
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Box sx={{ 
@@ -105,28 +99,16 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  <CalendarTodayIcon sx={{ fontSize: 20, color: '#1B5E20' }} />
+                  <CalendarTodayIcon sx={{ fontSize: 16, color: '#1B5E20' }} />
                 </Box>
                 <Box>
-                  <Typography variant="h5" sx={{ fontWeight: 600, color: "#050E3C" }}>
+                  <Typography variant="h6" sx={{ fontWeight: 400, color: "#050E3C" }}>
                     {year}. godina
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                    {pairsByYear[year].length} {pairsByYear[year].length === 1 ? 'par' : 'parova'}
                   </Typography>
                 </Box>
               </Stack>
-              <Chip 
-                label={year} 
-                color="success" 
-                variant="outlined"
-                size="small"
-              />
             </Stack>
-
-            <Divider sx={{ mb: 3 }} />
-
-            {/* PAROVI ZA TU GODINU */}
+            <Divider sx={{ mb: 2 }} />
             <Stack spacing={2}>
               {pairsByYear[year].map((pair, index) => (
                 <Card
@@ -136,10 +118,6 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
                     borderRadius: 2,
                     borderLeft: '3px solid',
                     borderLeftColor: '#FF3838',
-                    transition: 'transform 0.2s',
-                    '&:hover': {
-                      transform: 'translateX(4px)',
-                    },
                   }}
                 >
                   <CardContent sx={{ py: 2 }}>
@@ -160,7 +138,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
                       </Box>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body1" sx={{ fontWeight: 500, color: "#050E3C" }}>
-                          🎁 Ti → {pair.receiver.firstName} {pair.receiver.lastName}
+                        Ti → {pair.receiver.firstName} {pair.receiver.lastName}
                         </Typography>
                         <Stack 
                           direction="row" 
@@ -174,11 +152,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
                           <Typography variant="caption" sx={{ color: "text.secondary" }}>
                             📅 {new Date(pair.createdAt).toLocaleDateString('sr-RS')}
                           </Typography>
-                          <Chip 
-                            label={`ID: ${pair.id}`} 
-                            size="small" 
-                            variant="outlined" 
-                          />
+                         
                         </Stack>
                       </Box>
                     </Stack>
@@ -189,13 +163,11 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
           </Paper>
         ))}
       </Stack>
-
-      {/* STATISTIKA */}
       <Paper
         elevation={0}
         sx={{
           p: 3,
-          mt: 4,
+          mt: 2,
           borderRadius: 3,
           backgroundColor: alpha('#050E3C', 0.05),
           border: '1px solid',
@@ -204,7 +176,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
       >
         <Stack direction="row" spacing={4} justifyContent="center">
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" sx={{ fontWeight: 700, color: "#050E3C" }}>
+            <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {pairs.length}
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -212,7 +184,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" sx={{ fontWeight: 700, color: "#050E3C" }}>
+            <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {sortedYears.length}
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -220,7 +192,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
             </Typography>
           </Box>
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="h3" sx={{ fontWeight: 700, color: "#050E3C" }}>
+            <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {new Date(pairs[0]?.createdAt).getFullYear()}
             </Typography>
             <Typography variant="body2" sx={{ color: "text.secondary" }}>

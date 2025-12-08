@@ -1,28 +1,31 @@
+
 import { CssBaseline, ThemeProvider } from "@mui/material";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAppDispatch } from "../store/configureStore";
 import { fetchCurrentUser } from "../../features/account/accountSlice";
 import LoadingComponent from "./LoadingComponent";
-import { theme } from "../../components/theme"; 
+import { theme } from "../theme"; 
 
-function App() {
+export default function App() {
   const [loading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
 
-  const initApp = useCallback(async () => {
-    try {
-      await dispatch(fetchCurrentUser());
-    } catch (error) {
-      console.log(error);
-    }
+  useEffect(() => {
+    const initApp = async () => {
+      try {
+        await dispatch(fetchCurrentUser());
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initApp();
   }, [dispatch]);
 
-  useEffect(() => {
-    initApp().then(() => setLoading(false));
-  }, [initApp]);
-
-  if (loading) return <LoadingComponent message="Učitavanje aplikacije..." />;
+  if (loading) {
+    return <LoadingComponent message="Učitavanje aplikacije..." />;
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -31,5 +34,3 @@ function App() {
     </ThemeProvider>
   );
 }
-
-export default App;

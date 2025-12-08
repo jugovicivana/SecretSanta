@@ -1,8 +1,7 @@
 import { Box } from "@mui/material";
-import NavBar from "./NavBar";
+import NavBar from "../../components/navigation/NavBar";
 import { Outlet } from "react-router-dom";
 
-// WithNavBar.tsx - alternativno
 export default function WithNavBar() {
   return (
     <Box 
@@ -10,7 +9,6 @@ export default function WithNavBar() {
         display: "flex", 
         flexDirection: "column", 
         minHeight: "100vh"
-       
       }}
     >
       <NavBar />
@@ -21,7 +19,7 @@ export default function WithNavBar() {
           overflow: "auto", 
         }}
       >
-          <Outlet />
+        <Outlet />
       </Box>
     </Box>
   );

@@ -13,13 +13,11 @@ export interface Role {
   name: string;
   description: string;
 }
-// OVO JE ZA API RESPONSE (backend vraća ovo)
 export interface UserTokenDto {
   user: User;
   token: string;
 }
 
-// OVO JE ZA FRONTEND STATE (spljošteni objekat)
 export interface UserWithToken extends User {
   token: string;
 }
@@ -34,4 +32,14 @@ export interface RegisterDto {
   firstName: string;
   lastName: string;
   isAdmin: boolean;
+}
+export type RegisterFormDto = RegisterDto & {
+  confirmPassword: string;
+};
+
+export interface PendingAdmin {
+  id: number;
+  firstName: string;
+  lastName: string;
+  email: string;
 }

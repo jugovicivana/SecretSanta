@@ -4,26 +4,26 @@ import type { Pair, YearPairs } from "../../app/models/pair";
 
 interface GiftState {
   currentYearPairs: Pair[] | null;
-  yearPairs: YearPairs[]; // Parovi po godinama
+  yearPairs: YearPairs[];
   selectedYear: number | null;
   status: string;
   statusOnePair: string;
   statusPairs: string;
-  availableYears: number[]|null;
-  myPairs:Pair[]|null;
-  myCurrentPair:Pair|null;
+  availableYears: number[] | null;
+  myPairs: Pair[] | null;
+  myCurrentPair: Pair | null;
 }
 
 const initialState: GiftState = {
   currentYearPairs: null,
-  yearPairs: [], // Inicijalno prazan niz
+  yearPairs: [],
   selectedYear: null,
   status: "idle",
   statusPairs: "idle",
   statusOnePair: "idle",
-  availableYears:[],
-  myPairs:null,
-  myCurrentPair:null,
+  availableYears: [],
+  myPairs: null,
+  myCurrentPair: null,
 };
 export const fetchCurrentYearPairs = createAsyncThunk<Pair[]>(
   "gift/fetchCurrentYearPairs",
@@ -32,7 +32,9 @@ export const fetchCurrentYearPairs = createAsyncThunk<Pair[]>(
       const pairs = await agent.Gift.getCurrentYearPairs();
       return pairs;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -44,7 +46,9 @@ export const fetchMyPairs = createAsyncThunk<Pair[]>(
       const pairs = await agent.Gift.getMyPairs();
       return pairs;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -56,7 +60,9 @@ export const fetchMyPair = createAsyncThunk<Pair>(
       const pair = await agent.Gift.getMyPair();
       return pair;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -65,10 +71,12 @@ export const generatePairs = createAsyncThunk(
   "gift/generatePairs",
   async (_, thunkAPI) => {
     try {
-      await agent.Gift.generatePairs();
-      // Ne vraća ništa, samo trigger-uje generisanje
+      const response=await agent.Gift.generatePairs();
+      return response.pairs;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -79,7 +87,9 @@ export const resetCurrentYearPairs = createAsyncThunk(
     try {
       await agent.Gift.resetCurrentYearPairs();
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -91,7 +101,9 @@ export const fetchPairsForYear = createAsyncThunk<Pair[], number>(
       const pairs = await agent.Gift.getPairsForYear(year);
       return pairs;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -100,10 +112,12 @@ export const fetchAllPairs = createAsyncThunk<Pair[]>(
   "gift/fetchAllPairs",
   async (_, thunkAPI) => {
     try {
-      const pairs = await agent.Gift.getPairs(); // Svi parovi svih godina
+      const pairs = await agent.Gift.getPairs();
       return pairs;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -112,14 +126,15 @@ export const fetchYears = createAsyncThunk<number[]>(
   "gift/years",
   async (_, thunkAPI) => {
     try {
-      const years = await agent.Gift.getAvailableYears(); 
+      const years = await agent.Gift.getAvailableYears();
       return years;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
-
 
 export const giftSlice = createSlice({
   name: "gift",
@@ -131,20 +146,16 @@ export const giftSlice = createSlice({
     clearSelectedYear: (state) => {
       state.selectedYear = null;
     },
-    // Dodaj parove za godinu u cache
     cacheYearPairs: (state, action) => {
       const { year, pairs } = action.payload;
       const existingIndex = state.yearPairs.findIndex((yp) => yp.year === year);
 
       if (existingIndex >= 0) {
-        // Ažuriraj postojeće
         state.yearPairs[existingIndex].pairs = pairs;
       } else {
-        // Dodaj novo
         state.yearPairs.push({ year, pairs });
       }
     },
-    // Obriši parove za godinu iz cache-a
     removeYearPairs: (state, action) => {
       const year = action.payload;
       state.yearPairs = state.yearPairs.filter((yp) => yp.year !== year);
@@ -162,7 +173,7 @@ export const giftSlice = createSlice({
       .addCase(fetchCurrentYearPairs.rejected, (state) => {
         state.status = "idle";
       })
-        .addCase(fetchMyPairs.pending, (state) => {
+      .addCase(fetchMyPairs.pending, (state) => {
         state.statusPairs = "pendingFetchMyPairs";
       })
       .addCase(fetchMyPairs.fulfilled, (state, action) => {
@@ -185,7 +196,8 @@ export const giftSlice = createSlice({
       .addCase(generatePairs.pending, (state) => {
         state.status = "pendingGenerate";
       })
-      .addCase(generatePairs.fulfilled, (state) => {
+      .addCase(generatePairs.fulfilled, (state, action) => {
+        state.currentYearPairs=action.payload;
         state.status = "idle";
       })
       .addCase(generatePairs.rejected, (state) => {
@@ -206,8 +218,7 @@ export const giftSlice = createSlice({
         state.status = "pendingFetchYearPairs";
       })
       .addCase(fetchPairsForYear.fulfilled, (state, action) => {
-        console.log(action.payload)
-        const year = action.meta.arg; 
+        const year = action.meta.arg;
         const pairs = action.payload;
         const existingIndex = state.yearPairs.findIndex(
           (yp) => yp.year === year
@@ -217,7 +228,6 @@ export const giftSlice = createSlice({
         } else {
           state.yearPairs.push({ year, pairs });
         }
-
         state.status = "idle";
       })
       .addCase(fetchPairsForYear.rejected, (state) => {
@@ -247,16 +257,16 @@ export const giftSlice = createSlice({
       .addCase(fetchAllPairs.rejected, (state) => {
         state.status = "idle";
       });
-      builder.addCase(fetchYears.pending, (state)=>{
-        state.status="pendingYears";
-      });
-      builder.addCase(fetchYears.rejected, (state)=>{
-        state.status="rejectedYears";
-      });
-      builder.addCase(fetchYears.fulfilled, (state, action)=>{
-        state.status="succedded";
-        state.availableYears=action.payload;
-      });
+    builder.addCase(fetchYears.pending, (state) => {
+      state.status = "pendingYears";
+    });
+    builder.addCase(fetchYears.rejected, (state) => {
+      state.status = "rejectedYears";
+    });
+    builder.addCase(fetchYears.fulfilled, (state, action) => {
+      state.status = "succedded";
+      state.availableYears = action.payload;
+    });
   },
 });
 

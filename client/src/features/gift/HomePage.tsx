@@ -10,17 +10,12 @@ export default function HomePage() {
   if (!user) {
     return <LandingPage />;
   }
-
   if (user?.role.name === "Admin") {
     return <AdminDashboard />;
   }
-
-  // Ako je employee
   if (user?.role.name === "Employee") {
     return <EmployeeDashboard user={user} />;
   }
-
-  // Fallback (ako ima druge uloge)
   return (
    <Box sx={{ width: "100%", maxWidth: "100%", overflowX: "hidden", p: 3 }}>
       <h1>Dobrodošli, {user.firstName}!</h1>

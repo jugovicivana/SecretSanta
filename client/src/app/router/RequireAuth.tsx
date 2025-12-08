@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
-import { useAppSelector } from "../app/store/configureStore";
+import { useAppSelector } from "../store/configureStore";
 import type{ JSX } from "react";
 
 interface RequireAuthProps {
@@ -13,7 +13,6 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
   return children ? children : <Outlet />;
 };
 

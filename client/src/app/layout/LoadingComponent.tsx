@@ -1,5 +1,5 @@
 import { Backdrop, CircularProgress, Typography } from "@mui/material";
-import { theme } from "../../components/theme";
+import { theme } from "../theme";
 
 interface LoadingComponentProps {
   message?: string;

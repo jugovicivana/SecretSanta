@@ -1,18 +1,15 @@
 import { Box, Typography, Button, Paper, Container, Zoom } from "@mui/material";
 import CardGiftcardIcon from "@mui/icons-material/CardGiftcard";
-import LoginIcon from "@mui/icons-material/Login";
 import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
   return (
     <Box
       sx={{
         width:'100%',
-        // minHeight: "calc(100vh - 64px)",
         background:
-          "linear-gradient(135deg, #050E3C 0%, #002455 50%, #1B5E20 100%)",
+          "linear-gradient(135deg, #050E3C 0%, #002455 50%, #0f4b13ff 100%)",
         position: "relative",
         overflow: "hidden",
         display: "flex",
@@ -30,9 +27,6 @@ export default function LandingPage() {
         },
       }}
     >
-      {/* Animacije - pokloničići */}
-      {/* <FloatingGifts /> */}
-
       <Container maxWidth="md">
         <Zoom in={true} style={{ transitionDelay: "100ms" }}>
           <Paper
@@ -83,7 +77,6 @@ export default function LandingPage() {
                 🎁 Magija poklanjanja u kompaniji 🎄
               </Typography>
             </Box>
-
             <Typography
               variant="body1"
               sx={{
@@ -93,7 +86,7 @@ export default function LandingPage() {
                 color: "#050E3C",
               }}
             >
-              Dobrodošli u digitalno doba tajnog Deda Mraza! Aplikacija
+              Dobro došli u digitalno doba tajnog Deda Mraza! Aplikacija
               omogućava organizaciju poklanjanja unutar vaše kompanije na
               zabavan način. Prijavite se da biste otkrili detalje!
             </Typography>
@@ -105,7 +98,6 @@ export default function LandingPage() {
                 variant="contained"
                 size="medium"
                 onClick={() => navigate("/login")}
-                startIcon={<LoginIcon />}
                 sx={{
                   background:
                     "linear-gradient(45deg, #DC0000 30%, #FF3838 90%)",
@@ -114,11 +106,6 @@ export default function LandingPage() {
                   fontSize: "0.95rem",
                   fontWeight: 400,
                   borderRadius: 2,
-                  "&:hover": {
-                    // transform: "translateY(-3px)",
-                    // boxShadow: "0 10px 25px rgba(220, 0, 0, 0.4)",
-                  },
-                  // transition: "all 0.3s ease",
                 }}
               >
                 🎅 Prijavi se
@@ -137,16 +124,14 @@ export default function LandingPage() {
                   borderRadius: 2,
                   backgroundColor: "white",
                   "&:hover": {
-                    // borderColor: "#DC0000",
                     color: "primary.dark",
                     backgroundColor: "white",
                   },
                 }}
               >
-                📝 Registruj se
+                Registruj se
               </Button>
             </Box>
-
             <Typography
               variant="caption"
               sx={{
@@ -166,47 +151,3 @@ export default function LandingPage() {
   );
 }
 
-// // Pomocna komponenta za floating gifts
-// function FloatingGifts() {
-//   return (
-//     <Box
-//       sx={{
-//         position: "absolute",
-//         width: "100%",
-//         height: "100%",
-//         overflow: "hidden",
-//         pointerEvents: "none",
-//       }}
-//     >
-//       {[...Array(15)].map((_, i) => (
-//         <Box
-//           key={i}
-//           sx={{
-//             position: "absolute",
-//             animation: `float ${15 + (i % 5)}s infinite ease-in-out`,
-//             animationDelay: `${i * 0.5}s`,
-//             "@keyframes float": {
-//               "0%, 100%": { transform: `translateY(0px) rotate(${i * 24}deg)` },
-//               "50%": {
-//                 transform: `translateY(-20px) rotate(${i * 24 + 180}deg)`,
-//               },
-//             },
-//           }}
-//         >
-//           <CardGiftcardIcon
-//             sx={{
-//               fontSize: 40 + (i % 3) * 10,
-//               color:
-//                 i % 3 === 0
-//                   ? "primary.main"
-//                   : i % 3 === 1
-//                   ? "secondary.main"
-//                   : "#1B5E20",
-//               opacity: 0.3 + (i % 4) * 0.1,
-//             }}
-//           />
-//         </Box>
-//       ))}
-//     </Box>
-//   );
-// }

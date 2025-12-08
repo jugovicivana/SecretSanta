@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import GiftIcon from "@mui/icons-material/CardGiftcard";
-import type { Pair } from "../../app/models/pair";
+import type { Pair } from "../../../app/models/pair";
 
 interface PairListProps {
   pairs: Pair[];
@@ -32,7 +32,7 @@ export default function PairList({
   isResetting = false,
 }: PairListProps) {
   
-    if (isLoading) {
+    if (isLoading && isCurrentYear) {
     return (
       <Box sx={{ textAlign: "center", py: 6 }}>
         <CircularProgress size={50} />

@@ -34,7 +34,8 @@ export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message = error?.response?.data || "Pogrešan email ili lozinka.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -46,7 +47,9 @@ export const registerUser = createAsyncThunk<RegisterDto, RegisterDto>(
       const userDto = await agent.Account.register(data);
       return userDto;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -67,7 +70,9 @@ export const fetchCurrentUser = createAsyncThunk<UserWithToken | null>(
       return userWithToken;
     } catch (error: any) {
       return thunkAPI.rejectWithValue(
-        error.response?.data?.message || error.message || "Could not fetch user"
+        error.response?.data?.message ||
+          error.message ||
+          "Nije moguće pribaviti korisnika."
       );
     }
   }
@@ -79,7 +84,9 @@ export const rejectAdmin = createAsyncThunk<void, number>(
     try {
       await agent.Account.rejectAdmin(userId);
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -91,7 +98,9 @@ export const fetchPendingAdmins = createAsyncThunk<User[]>(
       const users = await agent.Account.getAllPendingAdmins();
       return users;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -103,7 +112,9 @@ export const approveAdmin = createAsyncThunk<number, number>(
       await agent.Account.approveAdmin(id);
       return id;
     } catch (error: any) {
-      return thunkAPI.rejectWithValue({ error: error.data });
+      const message =
+        error?.response?.data || error?.message || "Došlo je do greške.";
+      return thunkAPI.rejectWithValue(message);
     }
   }
 );
@@ -123,7 +134,7 @@ export const accountSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(registerUser.fulfilled, (state) => {
-      state.status = "succeeded";
+      state.status = "successRegister";
     });
     builder.addCase(registerUser.pending, (state) => {
       state.status = "pendingRegister";
@@ -132,7 +143,7 @@ export const accountSlice = createSlice({
       state.status = "failed";
     });
     builder.addCase(signInUser.fulfilled, (state, action) => {
-      state.status = "succeeded";
+      state.status = "successLogin";
       state.user = action.payload;
     });
     builder.addCase(signInUser.pending, (state) => {
@@ -142,9 +153,9 @@ export const accountSlice = createSlice({
       state.status = "failed";
     });
     builder.addCase(fetchCurrentUser.rejected, (state) => {
+      state.status = "rejectedFetchCurrentUser";
       state.user = null;
       localStorage.removeItem("user");
-      router.navigate("/");
     });
     builder.addCase(fetchCurrentUser.fulfilled, (state, action) => {
       state.user = action.payload;
