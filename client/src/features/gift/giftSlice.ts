@@ -12,6 +12,7 @@ interface GiftState {
   availableYears: number[] | null;
   myPairs: Pair[] | null;
   myCurrentPair: Pair | null;
+  currentYearPairsStatus: string;
 }
 
 const initialState: GiftState = {
@@ -24,6 +25,7 @@ const initialState: GiftState = {
   availableYears: [],
   myPairs: null,
   myCurrentPair: null,
+  currentYearPairsStatus: "idle",
 };
 export const fetchCurrentYearPairs = createAsyncThunk<Pair[]>(
   "gift/fetchCurrentYearPairs",
@@ -71,7 +73,7 @@ export const generatePairs = createAsyncThunk(
   "gift/generatePairs",
   async (_, thunkAPI) => {
     try {
-      const response=await agent.Gift.generatePairs();
+      const response = await agent.Gift.generatePairs();
       return response.pairs;
     } catch (error: any) {
       const message =
@@ -164,14 +166,14 @@ export const giftSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCurrentYearPairs.pending, (state) => {
-        state.status = "pendingFetchPairs";
+        state.currentYearPairsStatus = "pendingFetchPairs";
       })
       .addCase(fetchCurrentYearPairs.fulfilled, (state, action) => {
         state.currentYearPairs = action.payload;
-        state.status = "idle";
+        state.currentYearPairsStatus = "pairsdone";
       })
       .addCase(fetchCurrentYearPairs.rejected, (state) => {
-        state.status = "idle";
+        state.currentYearPairsStatus = "failed";
       })
       .addCase(fetchMyPairs.pending, (state) => {
         state.statusPairs = "pendingFetchMyPairs";
@@ -197,7 +199,7 @@ export const giftSlice = createSlice({
         state.status = "pendingGenerate";
       })
       .addCase(generatePairs.fulfilled, (state, action) => {
-        state.currentYearPairs=action.payload;
+        state.currentYearPairs = action.payload;
         state.status = "idle";
       })
       .addCase(generatePairs.rejected, (state) => {
@@ -228,7 +230,7 @@ export const giftSlice = createSlice({
         } else {
           state.yearPairs.push({ year, pairs });
         }
-        state.status = "idle";
+        state.status = "pairsdone";
       })
       .addCase(fetchPairsForYear.rejected, (state) => {
         state.status = "idle";

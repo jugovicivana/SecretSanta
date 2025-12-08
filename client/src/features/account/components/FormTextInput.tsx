@@ -47,6 +47,16 @@ export default function FormTextInput<T extends FieldValues>({
                   borderColor: "secondary.main",
                 },
               },
+              "& input:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 1000px transparent inset",
+                WebkitTextFillColor: "#004080",
+                transition: "background-color 9999s ease-in-out 0s",
+              },
+
+              "& textarea:-webkit-autofill": {
+                WebkitBoxShadow: "0 0 0 1000px transparent inset",
+                WebkitTextFillColor: "#004080",
+              },
             }}
           />
           <FormHelperText sx={{ minHeight: "1.25em", color: "primary.dark" }}>

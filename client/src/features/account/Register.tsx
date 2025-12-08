@@ -22,13 +22,22 @@ export default function Register() {
     };
 
     try {
-      await dispatch(registerUser(registerDto)).unwrap();
-      if (data.isAdmin) {
-        toast.info("Nalozi kreirani sa admin statusom moraju biti odobreni.");
-      } else
-        toast.success("Nalog je kreiran, prijavite se sa svojim podacima.");
-      resetForm();
-      navigate("/login");
+      const result = await dispatch(registerUser(registerDto)).unwrap();
+      if (!result.isApproved) {
+        toast.info("Nalozi kreirani sa admin statusom moraju biti odobreni.", {
+          onClose: () => {
+            resetForm();
+            navigate("/login"); 
+          },
+        });
+      } else {
+        toast.success("Nalog je kreiran, prijavite se sa svojim podacima.", {
+          onClose: () => {
+            resetForm();
+            navigate("/login"); 
+          },
+        });
+      }
     } catch (error: unknown) {
       console.log(error);
     }

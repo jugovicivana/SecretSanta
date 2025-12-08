@@ -36,22 +36,22 @@ export default function RequestTable({
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "primary.light" }}>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 ID
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 Ime
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 Prezime
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 Email
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 Status
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
                 Akcije
               </TableCell>
             </TableRow>
@@ -63,16 +63,16 @@ export default function RequestTable({
 
               return (
                 <TableRow key={admin.id} hover>
-                  <TableCell>{admin.id}</TableCell>
-                  <TableCell>{admin.firstName}</TableCell>
-                  <TableCell>{admin.lastName}</TableCell>
-                  <TableCell>{admin.email}</TableCell>
-                  <TableCell>
+                  <TableCell sx={{textAlign:'center'}}>{admin.id}</TableCell>
+                   <TableCell sx={{textAlign:'center'}}>{admin.firstName}</TableCell>
+                   <TableCell sx={{textAlign:'center'}}>{admin.lastName}</TableCell>
+                   <TableCell sx={{textAlign:'center'}}>{admin.email}</TableCell>
+                  <TableCell sx={{textAlign:'center'}}>
                     <Chip label="Na čekanju" color="warning" size="small" />
                   </TableCell>
 
                   <TableCell>
-                    <Stack direction="row" spacing={1}>
+                    <Stack direction="row" spacing={1} sx={{display:'flex', justifyContent:'space-evenly'}}>
                       <Button
                         variant="contained"
                         color="success"

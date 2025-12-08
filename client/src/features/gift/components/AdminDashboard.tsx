@@ -30,6 +30,7 @@ export default function AdminDashboard() {
     selectedYear: selectedYearFromState,
     status,
     availableYears,
+    currentYearPairsStatus
   } = useAppSelector((state) => state.gift);
 
   const currentYear = new Date().getFullYear();
@@ -130,7 +131,7 @@ export default function AdminDashboard() {
           <CurrentYearPairs
             currentYearPairs={currentYearPairs || []}
             currentYear={currentYear}
-            status={status}
+            status={currentYearPairsStatus}
             resettingSource={resettingSource}
             handleResetPairs={handleResetPairs}
           />

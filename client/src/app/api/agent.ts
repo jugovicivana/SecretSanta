@@ -3,6 +3,7 @@ import axios from "axios";
 import type { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import type { LoginDto, RegisterDto } from "../models/user";
+import { router } from "../router/Routes";
 
 axios.defaults.baseURL = "http://localhost:5209/api";
 axios.defaults.withCredentials = true;
@@ -29,6 +30,20 @@ axios.interceptors.response.use(
   (error: AxiosError) => {
     if (error.response?.status === 500) {
       toast.error("Došlo je do greške na serveru.");
+    }
+
+    if (error.response?.status === 400) {
+      router.navigate("/bad-request", {
+        state: { error: error.response.data },
+      });
+    }
+
+    if (error.response?.status === 401) {
+      router.navigate("/unauthorized");
+    }
+
+    if (error.response?.status === 403) {
+      router.navigate("/forbidden");
     }
 
     return Promise.reject(error);

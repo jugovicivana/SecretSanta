@@ -6,6 +6,10 @@ import WithNavBar from "../layout/WithNavBar";
 import App from "../layout/App";
 import { createBrowserRouter } from "react-router-dom";
 import Login from "../../features/account/Login";
+import Unauthorized from "../../components/error/Unauthorized";
+import Forbidden from "../../components/error/Forbidden";
+import BadRequest from "../../components/error/BadRequest";
+import NotFound from "../../components/error/NotFound";
 
 export const router = createBrowserRouter([
   {
@@ -37,6 +41,10 @@ export const router = createBrowserRouter([
           },
         ],
       },
+       { path: "/unauthorized", element: <Unauthorized /> },
+      { path: "/forbidden", element: <Forbidden /> },
+      { path: "/bad-request", element: <BadRequest /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
 ]);

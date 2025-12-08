@@ -15,8 +15,8 @@ type Props = {
 
 export default function RegisterForm({ onSubmit, loading }: Props) {
   const { control, handleSubmit, reset } = useForm<RegisterFormDto>({
-    mode: "onSubmit",
-    reValidateMode: "onBlur",
+    mode: "onBlur",
+    reValidateMode: "onChange",
     resolver: yupResolver(registerValidationSchema),
     defaultValues: {
       firstName: "",

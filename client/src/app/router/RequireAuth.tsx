@@ -11,7 +11,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const location = useLocation();
 
   if (!currentUser) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to="/unauthorized" state={{ from: location }} replace />;
   }
   return children ? children : <Outlet />;
 };

@@ -49,7 +49,7 @@ export default function UserMenu({ user }: MenuProps) {
         PaperProps={{
           sx: {
             mt: 1.5,
-            minWidth: 180,
+            minWidth: 150,
             borderRadius: 2,
             boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
             background: "linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)",
@@ -62,13 +62,15 @@ export default function UserMenu({ user }: MenuProps) {
             color: "primary.main",
             fontFamily: "'Montserrat', sans-serif",
             fontWeight: "normal",
-            py: 1.5,
+            py: 1,
             "&:hover": {
               color: "primary.dark",
+              backgroundColor: "transparent", // ✅ uklanja hover pozadinu
+              fontWeight:600,
             },
           }}
         >
-          <LogoutIcon sx={{ mr: 1.5, fontSize: 16 }} />
+          <LogoutIcon sx={{ mr: 1, fontSize: 16 }} />
           Odjavi se
         </MenuItem>
       </Menu>

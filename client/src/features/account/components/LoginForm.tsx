@@ -14,8 +14,8 @@ type Props = {
 
 export default function LoginForm({ onSubmit, loading }: Props) {
   const { control, handleSubmit, reset } = useForm<LoginDto>({
-    mode: "onSubmit",
-    reValidateMode: "onBlur",
+    mode: "onBlur",
+    reValidateMode: "onChange",
     resolver: yupResolver(loginValidationSchema),
     defaultValues: {
       email: "",
@@ -33,7 +33,7 @@ export default function LoginForm({ onSubmit, loading }: Props) {
       onSubmit={handleSubmit(handleFormSubmit)}
       sx={{ maxWidth: 400, width: "100%" }}
     >
-      <FormTextInput
+      <FormTextInput<LoginDto>
         name="email"
         label="Email"
         type="email"
@@ -41,7 +41,7 @@ export default function LoginForm({ onSubmit, loading }: Props) {
         icon={<Email sx={{ mr: 1, color: "primary.main" }} />}
       />
 
-      <FormTextInput
+      <FormTextInput<LoginDto>
         name="password"
         label="Lozinka"
         type="password"

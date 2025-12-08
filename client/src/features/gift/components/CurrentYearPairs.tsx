@@ -1,4 +1,4 @@
-import { Paper } from "@mui/material";
+import { Box, CircularProgress, Paper, Typography } from "@mui/material";
 import PairList from "./PairList";
 import type { Pair } from "../../../app/models/pair";
 
@@ -28,14 +28,23 @@ export default function CurrentYearPairs({
         border: "1px solid rgba(0, 36, 85, 0.1)",
       }}
     >
-      <PairList
-        pairs={currentYearPairs}
-        year={currentYear}
-        onReset={() => handleResetPairs("pairlist")}
-        isCurrentYear={true}
-        isLoading={status === "pendingFetchPairs"}
-        isResetting={resettingSource === "pairlist"}
-      />
+      {status === "pendingFetchPairs" ? (
+        <Box sx={{ textAlign: "center", py: 6 }}>
+          <CircularProgress size={50} />
+          <Typography sx={{ mt: 2, color: "text.secondary" }}>
+            Učitavanje parova za {currentYear}. godinu...
+          </Typography>
+        </Box>
+      ) : (
+        <PairList
+          pairs={currentYearPairs}
+          year={currentYear}
+          onReset={() => handleResetPairs("pairlist")}
+          isCurrentYear={true}
+          status={status}
+          isResetting={resettingSource === "pairlist"}
+        />
+      )}
     </Paper>
   );
 }

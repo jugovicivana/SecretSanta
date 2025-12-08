@@ -40,7 +40,7 @@ export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
   }
 );
 
-export const registerUser = createAsyncThunk<RegisterDto, RegisterDto>(
+export const registerUser = createAsyncThunk<User, RegisterDto>(
   "account/registerUser",
   async (data, thunkAPI) => {
     try {

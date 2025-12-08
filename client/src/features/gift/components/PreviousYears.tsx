@@ -1,4 +1,10 @@
-import { Box, Button, Paper, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Paper,
+  Typography,
+} from "@mui/material";
 import HistoryIcon from "@mui/icons-material/History";
 import PairList from "./PairList";
 import type { Pair } from "../../../app/models/pair";
@@ -82,12 +88,20 @@ export default function PreviousYears({
               border: "1px solid rgba(29, 27, 94, 0.2)",
             }}
           >
+            {status === "pendingFetchYearPairs" ? (
+              <Box sx={{ textAlign: "center", py: 6 }}>
+                <CircularProgress size={50} />
+                <Typography sx={{ mt: 2, color: "text.secondary" }}>
+                  Učitavanje parova za {selectedYearFromState}. godinu...
+                </Typography>
+              </Box>
+            ) : (
             <PairList
               pairs={getPairsForSelectedYear() || []}
               year={selectedYearFromState}
-              isLoading={status === "pendingFetchYearPairs"}
+              status={status}
               isCurrentYear={selectedYearFromState === currentYear}
-            />
+            />)}
           </Paper>
         </Box>
       )}
