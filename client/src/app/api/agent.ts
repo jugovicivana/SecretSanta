@@ -2,7 +2,7 @@
 import axios from "axios";
 import type { AxiosError, AxiosResponse } from "axios";
 import { toast } from "react-toastify";
-import type { LoginDto, RegisterDto } from "../models/user";
+import type { LoginDto, RegisterDto, UserTokenDto } from "../models/user";
 import { router } from "../router/Routes";
 
 axios.defaults.baseURL = "http://localhost:5209/api";
@@ -13,8 +13,8 @@ axios.interceptors.request.use((config) => {
   const userData = localStorage.getItem("user");
   if (userData) {
     const user = JSON.parse(userData);
-    if (user.token) {
-      config.headers.Authorization = `Bearer ${user.token}`;
+    if (user.accessToken) {
+      config.headers.Authorization = `Bearer ${user.accessToken}`;
     }
   }
   return config;
@@ -27,24 +27,45 @@ axios.interceptors.response.use(
     await sleep();
     return response;
   },
-  (error: AxiosError) => {
+   async (error: AxiosError) => {
+    const originalRequest: any = error.config;
+
     if (error.response?.status === 500) {
       toast.error("Došlo je do greške na serveru.");
     }
 
     if (error.response?.status === 400) {
       router.navigate("/bad-request", {
-        state: { error: error.response.data },
+        state: { error: error.response?.data },
       });
-    }
-
-    if (error.response?.status === 401) {
-      router.navigate("/unauthorized");
     }
 
     if (error.response?.status === 403) {
       router.navigate("/forbidden");
     }
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      try {
+        const res: UserTokenDto = await Account.refreshToken();
+        const userWithToken = {
+          ...res.user,
+          accessToken: res.accessToken,
+          refreshToken: res.refreshToken,
+        };
+        localStorage.setItem("user", JSON.stringify(userWithToken));
+        originalRequest.headers["Authorization"] = `Bearer ${userWithToken.accessToken}`;
+        return axios(originalRequest);
+      } catch (err) {
+        localStorage.removeItem("user");
+        router.navigate("/login");
+        return Promise.reject(err);
+      }
+    }
+
+    // if (error.response?.status === 401) {
+    //   router.navigate("/unauthorized");
+    // }
 
     return Promise.reject(error);
   }
@@ -64,6 +85,7 @@ const Account = {
   approveAdmin: (id: number) => requests.put(`user/approveAdmin/${id}`, {}),
   getAllPendingAdmins: () => requests.get("user/pendingAdmins"),
   rejectAdmin: (id: number) => requests.delete(`user/rejectAdmin/${id}`),
+  refreshToken: () => requests.post("user/refresh", {}), 
 };
 
 const Gift = {

@@ -14,10 +14,13 @@ namespace API.Controllers
     public class UserController : BaseAPIController
     {
         private readonly IUserService _userService;
+        private readonly TokenService _tokenService;
 
-        public UserController(IUserService userService)
+
+        public UserController(IUserService userService, TokenService tokenService)
         {
             _userService = userService;
+            _tokenService = tokenService;
         }
 
         [HttpPost("login")]
@@ -25,7 +28,9 @@ namespace API.Controllers
         {
             try
             {
-                var result = await _userService.Login(loginDto);
+                var result = await _tokenService.Authenticate(loginDto);
+                SetRefreshCookie(result.RefreshToken);
+
                 return Ok(result);
             }
             catch (Exception ex)
@@ -34,12 +39,41 @@ namespace API.Controllers
             }
         }
 
+        [HttpPost("refresh")]
+        public async Task<ActionResult<UserTokenDto>> Refresh(RefreshRequest request)
+        {
+            // var refreshToken = Request.Cookies["refreshToken"];
+            var refreshToken = request.Token;
+
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return NoContent();
+
+            var result = await _tokenService.ValidateRefreshToken(refreshToken);
+            if (result == null)
+                return NoContent();
+            SetRefreshCookie(result.RefreshToken);
+
+            return Ok(result);
+        }
+
+        private void SetRefreshCookie(string token)
+        {
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("refreshToken", token, options);
+        }
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
         {
             try
             {
-                var user = await _userService.Register(registerDto);
+                var user = await _tokenService.Register(registerDto);
                 return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
             }
             catch (Exception ex)
@@ -54,7 +88,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet("currentUser")]
-        public async Task<ActionResult<UserTokenDto>> GetCurrentUser()
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
@@ -75,13 +109,7 @@ namespace API.Controllers
 
                 var userDto = await _userService.GetUserById(userId);
 
-                var result = new UserTokenDto
-                {
-                    User = userDto,
-                    Token = token
-                };
-
-                return Ok(result);
+                return Ok(userDto);
             }
             catch (Exception ex)
             {

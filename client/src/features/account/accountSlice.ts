@@ -28,9 +28,11 @@ export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
     try {
       const response: UserTokenDto = await agent.Account.login(data);
       const userWithToken: UserWithToken = {
-        ...response.user,
-        token: response.token,
-      };
+  ...response.user,
+  accessToken: response.accessToken,
+  refreshToken: response.refreshToken,
+};
+
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
     } catch (error: any) {
@@ -63,9 +65,11 @@ export const fetchCurrentUser = createAsyncThunk<UserWithToken | null>(
         return null;
       }
       const userWithToken: UserWithToken = {
-        ...response.user,
-        token: response.token,
-      };
+  ...response.user,
+  accessToken: response.accessToken,
+  refreshToken: response.refreshToken,
+};
+
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
     } catch (error: any) {

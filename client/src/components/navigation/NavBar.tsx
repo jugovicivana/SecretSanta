@@ -61,7 +61,7 @@ function NavBar() {
             Secret Santa
           </Typography>
         </Box>
-        {user?.role.name === "Admin" && <AdminMenu />}
+        {user?.role?.name === "Admin" && <AdminMenu />}
         {user && <UserMenu user={user} />}
       </Toolbar>
     </AppBar>
