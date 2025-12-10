@@ -25,28 +25,6 @@ namespace API.Services
             _mapper = mapper;
             _tokenService = tokenService;
         }
-      
-        // public async Task<UserTokenDto> Login(LoginDto loginData)
-        // {
-        //     var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginData.Email.ToLower()));
-        //     if (user == null)
-        //     {
-        //         throw new Exception("Pogrešan email ili lozinka");
-        //     }
-        //     if (!VerifyPasswordHash(loginData.Password, user.PasswordHash, user.PasswordSalt))
-        //     {
-        //         throw new Exception("Pogrešan email ili lozinka");
-        //     }
-        //     if (user.Role.Name == "Admin" && !user.IsApproved)
-        //         throw new Exception("Admin account čeka odobrenje postojećeg Admin-a");
-        //     var token = await _tokenService.GenerateToken(user);
-
-        //     return new UserTokenDto
-        //     {
-        //         User = _mapper.Map<UserDto>(user),
-        //         AccessToken = token
-        //     };
-        // }
 
         public async Task<List<UserDto>> GetAllUsers()
         {
@@ -83,20 +61,20 @@ namespace API.Services
             return _mapper.Map<UserDto>(user);
         }
 
-        public async Task<UserDto> ApproveAdminAsync(int adminUserId)
+        public async Task<UserDto> ApproveUserAsync(int userId)
         {
             var userToApprove = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == adminUserId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (userToApprove == null)
                 throw new Exception("Korisnik nije pronađen");
 
-            if (userToApprove.Role.Name != "Admin")
-                throw new Exception("Korisnik nije Admin");
+            if (userToApprove.Role.Name != "Admin" && userToApprove.Role.Name!="Employee")
+                throw new Exception("Greška");
 
             if (userToApprove.IsApproved)
-                throw new Exception("Admin je već odobren");
+                throw new Exception("Korisnik je već odobren");
 
             userToApprove.IsApproved = true;
             await _context.SaveChangesAsync();
@@ -104,40 +82,40 @@ namespace API.Services
             return _mapper.Map<UserDto>(userToApprove);
 
         }
-        public async Task<List<UserDto>> GetPendingAdmins()
+        public async Task<List<UserDto>> GetPendingUsers()
         {
-            var pendingAdmins = await _context.Users
+            var pendingUsers = await _context.Users
                 .Include(u => u.Role)
-                .Where(u => u.Role.Name == "Admin" && !u.IsApproved)
+                .Where(u => !u.IsApproved)
                 .OrderBy(u => u.Id)
                 .ToListAsync();
 
-            return _mapper.Map<List<UserDto>>(pendingAdmins);
+            return _mapper.Map<List<UserDto>>(pendingUsers);
         }
-        public async Task<int> RejectAdminRequest(int adminUserId) 
+        public async Task<int> RejectUserRequest(int userId)
         {
             var user = await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == adminUserId);
+                .FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 throw new Exception("Korisnik nije pronađen");
 
-            if (user.Role.Name != "Admin")
-                throw new Exception("Korisnik nije Admin");
+            if (user.Role.Name != "Admin" && user.Role.Name!="Employee")
+                throw new Exception("Greška");
 
             if (user.IsApproved)
-                throw new Exception("Admin je već odobren - ne može se odbiti");
+                throw new Exception("Korisnik je već odobren - ne može se odbiti");
 
-            int deletedUserId = user.Id; 
+            int deletedUserId = user.Id;
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
-            return deletedUserId; 
+            return deletedUserId;
         }
 
-       
+
 
     }
 }

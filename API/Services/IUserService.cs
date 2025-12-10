@@ -12,9 +12,9 @@ namespace API.Services
         Task<List<UserDto>> GetAllUsers();
         Task<UserTokenDto> GetCurrentUser(int userId, string token);
         Task<UserDto> GetUserById(int userId);
-        Task<UserDto> ApproveAdminAsync(int adminUserId);
-        Task<List<UserDto>> GetPendingAdmins();
-        Task<int> RejectAdminRequest(int adminUserId);
+        Task<UserDto> ApproveUserAsync(int userId);
+        Task<List<UserDto>> GetPendingUsers();
+        Task<int> RejectUserRequest(int userId);
 
 
     }

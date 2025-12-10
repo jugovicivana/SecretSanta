@@ -30,13 +30,13 @@ namespace API.Data
               .HasOne(p => p.Giver)
               .WithMany()
               .HasForeignKey(p => p.GiverId)
-              .OnDelete(DeleteBehavior.ClientNoAction); // OVO!
+              .OnDelete(DeleteBehavior.ClientNoAction); 
 
             builder.Entity<Pair>()
                 .HasOne(p => p.Receiver)
                 .WithMany()
                 .HasForeignKey(p => p.ReceiverId)
-                .OnDelete(DeleteBehavior.ClientNoAction); // OVO!
+                .OnDelete(DeleteBehavior.ClientNoAction); 
 
             builder.Entity<User>()
                 .HasIndex(u => u.Email)

@@ -12,7 +12,7 @@ namespace API.Services
         public List<Pair> GeneratePairs(List<User> users)
         {
             if (users == null || users.Count < 2)
-                throw new ArgumentException("Potrebno je najmanje 2 zaposlenih za generisanje parova");
+                throw new ArgumentException("Potrebno je najmanje dvoje zaposlenih za generisanje parova.");
 
             var pairs = new List<Pair>();
 
@@ -41,15 +41,17 @@ namespace API.Services
         }
         public bool ValidatePairs(List<Pair> pairs, List<User> users)
         {
-            if (pairs.Count != users.Count)
+            int userCount = users.Count;
+
+            if (pairs.Count != userCount)
                 return false;
 
             var giverIds = pairs.Select(p => p.GiverId).Distinct().ToList();
-            if (giverIds.Count != users.Count)
+            if (giverIds.Count != userCount)
                 return false;
 
             var receiverIds = pairs.Select(p => p.ReceiverId).Distinct().ToList();
-            if (receiverIds.Count != users.Count)
+            if (receiverIds.Count != userCount)
                 return false;
 
             foreach (var pair in pairs)
@@ -58,17 +60,23 @@ namespace API.Services
                     return false;
             }
 
+            int reciprocalCount = 0;
+
             foreach (var pair in pairs)
             {
-                var reciprocalExists = pairs.Any(p => 
-                    p.GiverId == pair.ReceiverId && 
+                bool reciprocalExists = pairs.Any(p =>
+                    p.GiverId == pair.ReceiverId &&
                     p.ReceiverId == pair.GiverId);
-                
+
                 if (reciprocalExists)
-                    return false;
+                    reciprocalCount++;
             }
+
+            if (userCount > 2 && reciprocalCount > 0)
+                return false;
 
             return true;
         }
+
     }
 }

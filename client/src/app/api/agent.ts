@@ -27,17 +27,20 @@ axios.interceptors.response.use(
     await sleep();
     return response;
   },
-   async (error: AxiosError) => {
+  async (error: AxiosError) => {
     const originalRequest: any = error.config;
+
+    const errorMessage =
+      (error.response?.data as any)?.message ||
+      error.message ||
+      "Došlo je do greške.";
 
     if (error.response?.status === 500) {
       toast.error("Došlo je do greške na serveru.");
     }
 
     if (error.response?.status === 400) {
-      router.navigate("/bad-request", {
-        state: { error: error.response?.data },
-      });
+      router.navigate("/bad-request", { state: { error: errorMessage } });
     }
 
     if (error.response?.status === 403) {
@@ -54,7 +57,9 @@ axios.interceptors.response.use(
           refreshToken: res.refreshToken,
         };
         localStorage.setItem("user", JSON.stringify(userWithToken));
-        originalRequest.headers["Authorization"] = `Bearer ${userWithToken.accessToken}`;
+        originalRequest.headers[
+          "Authorization"
+        ] = `Bearer ${userWithToken.accessToken}`;
         return axios(originalRequest);
       } catch (err) {
         localStorage.removeItem("user");
@@ -62,10 +67,6 @@ axios.interceptors.response.use(
         return Promise.reject(err);
       }
     }
-
-    // if (error.response?.status === 401) {
-    //   router.navigate("/unauthorized");
-    // }
 
     return Promise.reject(error);
   }
@@ -82,10 +83,10 @@ const Account = {
   login: (values: LoginDto) => requests.post("user/login", values),
   register: (values: RegisterDto) => requests.post("user/register", values),
   currentUser: () => requests.get("user/currentUser"),
-  approveAdmin: (id: number) => requests.put(`user/approveAdmin/${id}`, {}),
-  getAllPendingAdmins: () => requests.get("user/pendingAdmins"),
-  rejectAdmin: (id: number) => requests.delete(`user/rejectAdmin/${id}`),
-  refreshToken: () => requests.post("user/refresh", {}), 
+  approveUser: (id: number) => requests.put(`user/approveUser/${id}`, {}),
+  getAllPendingUsers: () => requests.get("user/pendingUsers"),
+  rejectUser: (id: number) => requests.delete(`user/rejectUser/${id}`),
+  refreshToken: () => requests.post("user/refresh", {}),
 };
 
 const Gift = {

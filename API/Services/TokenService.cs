@@ -30,19 +30,19 @@ namespace API.Services
         public async Task<UserTokenDto> Authenticate(LoginDto loginDto)
         {
             if (string.IsNullOrWhiteSpace(loginDto.Email) || string.IsNullOrWhiteSpace(loginDto.Password))
-                return null;
+                throw new Exception("Email i lozinka su obavezni.");
 
             var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email.ToLower().Equals(loginDto.Email.ToLower()));
             if (user == null)
             {
-                throw new Exception("Pogrešan email ili lozinka");
+                throw new Exception("Pogrešan email ili lozinka.");
             }
             if (!VerifyPasswordHash(loginDto.Password, user.PasswordHash, user.PasswordSalt))
             {
-                throw new Exception("Pogrešan email ili lozinka");
+                throw new Exception("Pogrešan email ili lozinka!");
             }
-            if (user.Role.Name == "Admin" && !user.IsApproved)
-                throw new Exception("Admin account čeka odobrenje postojećeg Admin-a");
+            if (!user.IsApproved)
+                throw new Exception("Vaš nalog čeka odobrenje Admin-a");
             var tokens = await GenerateToken(user);
 
             return new UserTokenDto
@@ -108,10 +108,7 @@ namespace API.Services
             {
                 Token = Guid.NewGuid().ToString(),
                 Expiry = (int)(DateTime.UtcNow.AddDays(refreshTokenValidity) - DateTime.UnixEpoch).TotalSeconds,
-
-
                 UserId = userId
-
             };
 
             _context.RefreshTokens.Add(refreshToken);
@@ -138,7 +135,7 @@ namespace API.Services
 
             var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == refreshToken.UserId);
 
-            if (user is null) return null;
+            if (user == null) return null;
 
             return await GenerateToken(user);
 
@@ -155,37 +152,24 @@ namespace API.Services
         public async Task<UserDto> Register(RegisterDto registerDto)
         {
             if (await _context.Users.AnyAsync(u => u.Email == registerDto.Email))
-                throw new Exception("Korisnik sa ovim email-om već postoji");
+                throw new Exception("Korisnik sa ovim email-om već postoji.");
 
-            bool isFirstUser = !await _context.Users.AnyAsync(u => u.Role.Name == "Admin");
             bool wantsToBeAdmin = registerDto.isAdmin;
+            bool isFirstAdmin = wantsToBeAdmin && !await _context.Users.AnyAsync(u => u.Role.Name == "Admin");
 
-            bool isAdmin = wantsToBeAdmin;
-            bool isApproved = false;
+            bool isApproved = isFirstAdmin;
 
-            if (isFirstUser)
-            {
-                isApproved = true;
-            }
-            else if (!wantsToBeAdmin)
-            {
-                isApproved = true;
-            }
-            else
-            {
-                isApproved = false;
-            }
-
-
-            var roleName = isAdmin ? "Admin" : "Employee";
+            var roleName = wantsToBeAdmin ? "Admin" : "Employee";
             var role = await _context.Roles.FirstOrDefaultAsync(r => r.Name == roleName);
+            if (role == null)
+                throw new Exception("Rola ne postoji.");
 
             var user = new User
             {
                 Email = registerDto.Email,
                 FirstName = registerDto.FirstName,
                 LastName = registerDto.LastName,
-                RoleId = role?.Id ?? (isAdmin ? 2 : 1),
+                RoleId = role.Id,
                 IsApproved = isApproved,
                 Role = role,
             };

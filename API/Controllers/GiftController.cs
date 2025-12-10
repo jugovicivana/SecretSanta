@@ -51,8 +51,6 @@ namespace API.Controllers
                            .OrderBy(p => p.Giver.FirstName)
                            .ToListAsync();
 
-            if (!pairs.Any())
-                return NotFound(new { message = $"Nema parova za godinu {currentYear}" });
 
             return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
         }
@@ -67,10 +65,8 @@ namespace API.Controllers
                            .OrderBy(p => p.Giver.FirstName)
                            .ToListAsync();
 
-            if (!pairs.Any())
-                return NotFound(new { message = $"Nema parova za godinu {year}" });
+            return Ok(pairs.Select(p => _mapper.Map<PairDto>(p)).ToList());
 
-            return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
         }
 
         [HttpGet("getMyPair")]
@@ -83,9 +79,6 @@ namespace API.Controllers
                 .Include(p => p.Giver)
                 .Include(p => p.Receiver)
                 .FirstOrDefaultAsync(p => p.GiverId == userId && p.Year == currentYear);
-
-            if (pair == null)
-                return NotFound(new { message = "Nije vam dodijeljen par za tekuću godinu" });
 
             return _mapper.Map<PairDto>(pair);
         }
@@ -100,8 +93,6 @@ namespace API.Controllers
                 .Include(p => p.Receiver)
                 .Where(p => p.GiverId == userId).ToListAsync();
 
-            if (pairs == null)
-                return NotFound(new { message = "Nije vam dodijeljen par ni za jednu godinu" });
 
             return pairs.Select(p => _mapper.Map<PairDto>(p)).ToList();
         }
@@ -130,14 +121,14 @@ namespace API.Controllers
 
                 if (users.Count < 2)
                 {
-                    return BadRequest(new { message = "Potrebno je najmanje 2 zaposlena za realizaciju" });
+                    return BadRequest(new { message = "Potrebno je najmanje dvoje zaposlenih za realizaciju." });
                 }
 
                 var pairs = _giftService.GeneratePairs(users);
 
                 if (!_giftService.ValidatePairs(pairs, users))
                 {
-                    return BadRequest(new { message = "Generisani parovi nisu validni" });
+                    return BadRequest(new { message = "Generisani parovi nisu validni." });
                 }
 
                 await _context.Pairs.AddRangeAsync(pairs);
@@ -145,7 +136,7 @@ namespace API.Controllers
 
                 return Ok(new
                 {
-                    message = $"Parovi za godinu {currentYear} su uspješno generisani",
+                    message = $"Parovi za godinu {currentYear} su uspješno generisani.",
                     year = currentYear,
                     pairCount = pairs.Count,
                     pairs = pairs.Select(p => _mapper.Map<PairDto>(p)).ToList()

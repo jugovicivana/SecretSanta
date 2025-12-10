@@ -65,7 +65,7 @@ export default function UserMenu({ user }: MenuProps) {
             py: 1,
             "&:hover": {
               color: "primary.dark",
-              backgroundColor: "transparent", // ✅ uklanja hover pozadinu
+              backgroundColor: "transparent", 
               fontWeight:600,
             },
           }}

@@ -6,27 +6,27 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Stack,
   Chip,
-  CircularProgress,
   Typography,
 } from "@mui/material";
-import { Check as CheckIcon, Delete as DeleteIcon } from "@mui/icons-material";
-import type { PendingAdmin } from "../../../app/models/user";
+import type { User } from "../../../app/models/user";
+import ActionButton from "./ActionButton";
 
 type Props = {
-  admins: PendingAdmin[];
+  users: User[];
   processingId: number | null;
   isApproving: boolean;
-  onApprove: (admin: PendingAdmin) => void;
-  onReject: (admin: PendingAdmin) => void;
+  isRejecting: boolean;
+  onApprove: (user: User) => void;
+  onReject: (user: User) => void;
 };
 
 export default function RequestTable({
-  admins,
+  users,
   processingId,
   isApproving,
+  isRejecting,
   onApprove,
   onReject,
 }: Props) {
@@ -36,73 +36,86 @@ export default function RequestTable({
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "primary.light" }}>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
                 ID
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
                 Ime
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
                 Prezime
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
                 Email
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
-                Status
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
+                Uloga
               </TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign:'center' }}>
+              <TableCell
+                sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}
+              >
                 Akcije
               </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {admins.map((admin) => {
-              const isThisRowProcessing = processingId === admin.id;
+            {users.map((user) => {
 
               return (
-                <TableRow key={admin.id} hover>
-                  <TableCell sx={{textAlign:'center'}}>{admin.id}</TableCell>
-                   <TableCell sx={{textAlign:'center'}}>{admin.firstName}</TableCell>
-                   <TableCell sx={{textAlign:'center'}}>{admin.lastName}</TableCell>
-                   <TableCell sx={{textAlign:'center'}}>{admin.email}</TableCell>
-                  <TableCell sx={{textAlign:'center'}}>
-                    <Chip label="Na čekanju" color="warning" size="small" />
+                <TableRow key={user.id} hover>
+                  <TableCell sx={{ textAlign: "center" }}>{user.id}</TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {user.firstName}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {user.lastName}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    {user.email}
+                  </TableCell>
+                  <TableCell sx={{ textAlign: "center" }}>
+                    <Chip
+                      label={user.role.description}
+                      sx={{
+                        backgroundColor:
+                          user.role.name === "Employee"
+                            ? "secondary.main"
+                            : "secondary.light",
+                        color: "white",
+                      }}
+                      size="small"
+                    />
                   </TableCell>
 
                   <TableCell>
-                    <Stack direction="row" spacing={1} sx={{display:'flex', justifyContent:'space-evenly'}}>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        size="small"
-                        startIcon={
-                          isThisRowProcessing && isApproving ? (
-                            <CircularProgress size={20} color="inherit" />
-                          ) : (
-                            <CheckIcon />
-                          )
-                        }
-                        onClick={() => onApprove(admin)}
-                        disabled={processingId !== null && !isThisRowProcessing}
-                      >
-                        {isThisRowProcessing && isApproving
-                          ? "Odobravanje..."
-                          : "Odobri"}
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        size="small"
-                        startIcon={<DeleteIcon />}
-                        onClick={() => onReject(admin)}
-                        disabled={
-                          processingId !== null && !isThisRowProcessing
-                        }
-                      >
-                        Odbij
-                      </Button>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      sx={{ display: "flex", justifyContent: "space-evenly" }}
+                    >
+                      <ActionButton
+                        userId={user.id}
+                        isProcessing={processingId === user.id && isApproving}
+                        actionType="approve"
+                        onClick={() => onApprove(user)}
+                      />
+                      <ActionButton
+                        userId={user.id}
+                        isProcessing={processingId === user.id && isRejecting}
+                        actionType="reject"
+                        onClick={() => onReject(user)}
+                      />
                     </Stack>
                   </TableCell>
                 </TableRow>
@@ -113,7 +126,7 @@ export default function RequestTable({
       </TableContainer>
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-        Ukupno zahtjeva: {admins.length}
+        Ukupno zahtjeva: {users.length}
       </Typography>
     </>
   );

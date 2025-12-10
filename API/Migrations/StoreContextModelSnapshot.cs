@@ -71,6 +71,8 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("RefreshTokens");
                 });
 
@@ -169,6 +171,17 @@ namespace API.Migrations
                     b.Navigation("Giver");
 
                     b.Navigation("Receiver");
+                });
+
+            modelBuilder.Entity("API.Models.RefreshToken", b =>
+                {
+                    b.HasOne("API.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("API.Models.User", b =>

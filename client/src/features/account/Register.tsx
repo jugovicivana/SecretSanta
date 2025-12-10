@@ -24,7 +24,7 @@ export default function Register() {
     try {
       const result = await dispatch(registerUser(registerDto)).unwrap();
       if (!result.isApproved) {
-        toast.info("Nalozi kreirani sa admin statusom moraju biti odobreni.", {
+        toast.info("Sačekajte odobrenje naloga.", {
           onClose: () => {
             resetForm();
             navigate("/login"); 
@@ -38,8 +38,8 @@ export default function Register() {
           },
         });
       }
-    } catch (error: unknown) {
-      console.log(error);
+    } catch (error: any) {
+      toast.error(error);
     }
   };
   useEffect(() => {

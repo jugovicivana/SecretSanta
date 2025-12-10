@@ -1,82 +1,94 @@
-import { useEffect, useState } from 'react';
-import { Box, Typography, CircularProgress, Alert } from '@mui/material';
-import { useAppDispatch, useAppSelector } from '../../app/store/configureStore';
-import { fetchPendingAdmins, approveAdmin, rejectAdmin } from '../account/accountSlice';
-import RequestTable from './components/RequestTable';
-import RejectSnackbar from './components/RejectSnackbar';
-import type { PendingAdmin } from '../../app/models/user';
-import { toast } from 'react-toastify';
+import { useEffect, useState } from "react";
+import { Box, Typography, CircularProgress, Alert } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "../../app/store/configureStore";
+import {
+  fetchPendingUsers,
+  approveUser,
+  rejectUser,
+} from "../account/accountSlice";
+import RequestTable from "./components/RequestTable";
+import RejectSnackbar from "./components/RejectSnackbar";
+import { toast } from "react-toastify";
+import type { User } from "../../app/models/user";
 
 export default function Requests() {
   const dispatch = useAppDispatch();
-  const { pendingAdmins, status } = useAppSelector(state => state.account);
-  const [processingId, setProcessingId] = useState<number | null>(null);
+  const { pendingUsers, status } = useAppSelector((state) => state.account);
+const [processingId, setProcessingId] = useState<number | null>(null);
   const [showRejectAlert, setShowRejectAlert] = useState(false);
-  const [adminToReject, setAdminToReject] = useState<PendingAdmin | null>(null);
+  const [userToReject, setUserToReject] = useState<User | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPendingAdmins());
+    dispatch(fetchPendingUsers());
   }, [dispatch]);
 
- const handleApprove = async (admin: PendingAdmin) => {
-  setProcessingId(admin.id);
-  try {
-    await dispatch(approveAdmin(admin.id)).unwrap();
-    toast.success(`${admin.firstName} ${admin.lastName} je sada admin.`);
-  } catch (error: any) {
-    toast.error(error);
-  } finally {
-    setProcessingId(null);
-  }
-};
+  const handleApprove = async (user: User) => {
+    setProcessingId(user.id);
+    try {
+      await dispatch(approveUser(user.id)).unwrap();
+      toast.success(
+        `Nalog korisnika ${user.firstName} ${user.lastName} je odobren.`
+      );
+    } catch (error: any) {
+      toast.error(error);
+    } finally {
+      setProcessingId(null);
+    }
+  };
 
-  const handleOpenReject = (admin: PendingAdmin) => {
-    setAdminToReject(admin);
+  const handleOpenReject = (user: User) => {
+    setUserToReject(user);
     setShowRejectAlert(true);
   };
 
   const handleCloseReject = () => {
     setShowRejectAlert(false);
-    setAdminToReject(null);
+    setUserToReject(null);
   };
 
   const handleConfirmReject = async () => {
-    if (!adminToReject) return;
-    setProcessingId(adminToReject.id);
+    if (!userToReject) return;
+    setProcessingId(userToReject.id);
     try {
-      await dispatch(rejectAdmin(adminToReject.id)).unwrap();
-      toast.info("Odbijen je zahtjev za admina.")
-    } catch (error:any) {
-      toast.error(error)
+      await dispatch(rejectUser(userToReject.id)).unwrap();
+      toast.info("Odbijen je zahtjev za odobrenje naloga.");
+    } catch (error: any) {
+      toast.error(error);
     } finally {
       setProcessingId(null);
       handleCloseReject();
     }
   };
 
-  const isLoading = status === 'pendingFetchPendingAdmins';
-  const isApproving = status === 'pendingApproveAdmin';
-  const isRejecting = status === 'pendingRejectAdmin';
+  const isLoading = status === "pendingFetchPendingUsers";
+  const isApproving = status === "pendingApproveUser";
+  const isRejecting = status === "pendingRejectUser";
 
   return (
-    <Box sx={{ p: 3, width: '100%' }}>
+    <Box sx={{ p: 3, width: "100%" }}>
       <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
-        Zahtjevi za admin status
+        Zahtjevi za odobrenje naloga
       </Typography>
 
       {isLoading ? (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="200px"
+        >
           <CircularProgress />
         </Box>
-      ) : pendingAdmins.length === 0 ? (
+      ) : pendingUsers.length === 0 ? (
         <Alert severity="info">
-          Trenutno nema zahtjeva za admin status.
+          Trenutno nema zahtjeva za odobrenje naloga.
         </Alert>
       ) : (
         <RequestTable
-          admins={pendingAdmins}
+          users={pendingUsers}
           processingId={processingId}
           isApproving={isApproving}
+          isRejecting={isRejecting}
           onApprove={handleApprove}
           onReject={handleOpenReject}
         />
@@ -84,16 +96,16 @@ export default function Requests() {
 
       <RejectSnackbar
         open={showRejectAlert}
-        admin={adminToReject}
+        user={userToReject}
         onClose={handleCloseReject}
         onConfirm={handleConfirmReject}
         processingId={processingId}
         isRejecting={isRejecting}
       />
 
-      {(status === 'rejectedFetchPendingAdmins' ||
-        status === 'failedRejectAdmin' ||
-        status === 'rejectedApproveAdmin') && (
+      {(status === "rejectedFetchPendingUsers" ||
+        status === "failedRejectUser" ||
+        status === "rejectedApproveUser") && (
         <Alert severity="error" sx={{ mt: 2 }}>
           Došlo je do greške. Pokušajte ponovo.
         </Alert>

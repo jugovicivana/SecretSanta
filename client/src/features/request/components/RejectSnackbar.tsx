@@ -7,11 +7,11 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Delete as DeleteIcon } from "@mui/icons-material";
-import type { PendingAdmin } from "../../../app/models/user";
+import type { User } from "../../../app/models/user";
 
 type Props = {
   open: boolean;
-  admin: PendingAdmin | null;
+  user: User | null;
   onClose: () => void;
   onConfirm: () => void;
   processingId: number | null;
@@ -20,7 +20,7 @@ type Props = {
 
 export default function RejectSnackbar({
   open,
-  admin,
+  user,
   onClose,
   onConfirm,
   processingId,
@@ -45,7 +45,7 @@ export default function RejectSnackbar({
         <Typography variant="body2">
           Da li ste sigurni da želite odbiti korisnika{" "}
           <strong>
-            {admin?.firstName} {admin?.lastName}
+            {user?.firstName} {user?.lastName}
           </strong>
           ?
         </Typography>
@@ -55,16 +55,16 @@ export default function RejectSnackbar({
             color="error"
             variant="contained"
             onClick={onConfirm}
-            disabled={isRejecting && processingId === admin?.id}
+            disabled={isRejecting && processingId === user?.id}
             startIcon={
-              isRejecting && processingId === admin?.id ? (
+              isRejecting && processingId === user?.id ? (
                 <CircularProgress size={16} color="inherit" />
               ) : (
                 <DeleteIcon />
               )
             }
           >
-            {isRejecting && processingId === admin?.id
+            {isRejecting && processingId === user?.id
               ? "Brišem..."
               : "Da, obriši"}
           </Button>
@@ -72,7 +72,7 @@ export default function RejectSnackbar({
             size="small"
             variant="outlined"
             onClick={onClose}
-            disabled={isRejecting && processingId === admin?.id}
+            disabled={isRejecting && processingId === user?.id}
           >
             Odustani
           </Button>

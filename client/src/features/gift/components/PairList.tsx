@@ -31,10 +31,9 @@ export default function PairList({
   status,
   isResetting = false,
 }: PairListProps) {
-
   if (!pairs) return null;
 
-  if (pairs.length === 0 && status=="pairsdone") {
+  if (pairs.length === 0) {
     return (
       <Box sx={{ py: 4 }}>
         <Box sx={{ textAlign: "center", mb: 3 }}>

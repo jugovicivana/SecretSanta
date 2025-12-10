@@ -11,6 +11,6 @@ namespace API.Models
         public string Token { get; set; } = String.Empty;
         public int Expiry { get; set; }
         public int UserId {get;set;}
-
+        public User User {get;set;}=null!;
     }
 }

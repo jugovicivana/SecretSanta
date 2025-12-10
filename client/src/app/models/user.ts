@@ -23,6 +23,8 @@ export interface UserTokenDto {
 export interface UserWithToken extends User {
   accessToken: string;
   refreshToken: string;
+    expiresIn: number;       
+
 }
 
 export interface LoginDto {
@@ -40,7 +42,7 @@ export type RegisterFormDto = RegisterDto & {
   confirmPassword: string;
 };
 
-export interface PendingAdmin {
+export interface PendingUser {
   id: number;
   firstName: string;
   lastName: string;

@@ -16,7 +16,7 @@ interface GiftState {
 }
 
 const initialState: GiftState = {
-  currentYearPairs: null,
+  currentYearPairs: [],
   yearPairs: [],
   selectedYear: null,
   status: "idle",
@@ -77,7 +77,10 @@ export const generatePairs = createAsyncThunk(
       return response.pairs;
     } catch (error: any) {
       const message =
-        error?.response?.data || error?.message || "Došlo je do greške.";
+        error?.response?.data?.message ||
+        error?.message ||
+        "Došlo je do greške.";
+
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -266,7 +269,7 @@ export const giftSlice = createSlice({
       state.status = "rejectedYears";
     });
     builder.addCase(fetchYears.fulfilled, (state, action) => {
-      state.status = "succedded";
+      state.status = "yearsDone";
       state.availableYears = action.payload;
     });
   },

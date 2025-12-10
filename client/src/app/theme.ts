@@ -1,37 +1,35 @@
-// src/components/layout/theme.ts
 import { createTheme } from "@mui/material";
 
-// Dodajemo tamno zelenu boju
 const darkGreen = "#1B5E20";
 
 export const theme = createTheme({
   palette: {
     primary: {
-      main: "#DC0000", // Crvena iz palete
-      light: "#FF3838", // Svetlija crvena
-      dark: "#B00000", // Tamnija crvena
+      main: "#DC0000", 
+      light: "#FF3838", 
+      dark: "#B00000", 
       contrastText: "#FFFFFF",
     },
     secondary: {
-      main: "#002455", // Tamno plava iz palete
+      main: "#002455", 
       light: "#004080",
       dark: "#001833",
       contrastText: "#FFFFFF",
     },
     background: {
-      default: "#F5F7FA", // Svijetla siva
+      default: "#F5F7FA", 
       paper: "#FFFFFF",
     },
     text: {
-      primary: "#050E3C", // Najtamnija plava
-      secondary: "#002455", // Tamno plava
+      primary: "#050E3C", 
+      secondary: "#002455", 
       disabled: "#9E9E9E",
     },
     error: {
-      main: "#DC0000", // Crvena
+      main: "#DC0000", 
     },
     success: {
-      main: darkGreen, // Tamno zelena
+      main: darkGreen, 
       light: "#4CAF50",
       dark: "#0D3B0D",
     },
@@ -39,25 +37,24 @@ export const theme = createTheme({
       main: "#FF9800",
     },
     info: {
-      main: "#002455", // Tamno plava
+      main: "#002455",
     },
     action: {
-      active: "#002455", // Tamno plava
-      hover: "rgba(0, 36, 85, 0.08)", // Tamno plava sa transparentnošću
+      active: "#002455", 
+      hover: "rgba(0, 36, 85, 0.08)", 
       selected: "rgba(0, 36, 85, 0.16)",
       disabled: "#BDBDBD",
       disabledBackground: "rgba(0, 0, 0, 0.12)",
       focus: "rgba(0, 36, 85, 0.12)",
     },
     divider: "rgba(0, 0, 0, 0.12)",
-    // Dodatne boje iz palete
     common: {
       black: "#050E3C",
       white: "#FFFFFF",
     },
   },
   typography: {
-    fontFamily: "'Roboto', 'Arial', sans-serif", // Čitljiv font
+    fontFamily: "'Roboto', 'Arial', sans-serif", 
     h1: {
       fontWeight: 700,
       fontSize: "2.5rem",
@@ -96,7 +93,7 @@ export const theme = createTheme({
       color: "#002455",
     },
     button: {
-      textTransform: 'none', // Bez velikih slova
+      textTransform: 'none', 
       fontWeight: 500,
       fontSize: "0.875rem",
     },
@@ -106,7 +103,7 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 8, // Moderniji radius
+    borderRadius: 8, 
   },
   components: {
      MuiCssBaseline: {
@@ -177,7 +174,7 @@ export const theme = createTheme({
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#002455", // Tamno plava
+          backgroundColor: "#002455", 
           color: "#FFFFFF",
         },
       },

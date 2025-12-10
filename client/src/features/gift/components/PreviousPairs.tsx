@@ -1,4 +1,3 @@
-// components/PreviousPairs.tsx
 import {
   Box,
   Typography,
@@ -15,20 +14,26 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import type { Pair } from "../../../app/models/pair";
 
 interface PreviousPairsProps {
-  pairs: Pair[] | null; 
-  userName: string; 
+  pairs: Pair[] | null;
+  userName: string;
 }
 
 export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
   if (!pairs || pairs.length === 0) {
     return (
       <Box sx={{ textAlign: "center", py: 6 }}>
-        <HistoryIcon sx={{ fontSize: 60, color: alpha('#FF3838', 0.3), mb: 2 }} />
-        <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C", mb: 1 }}>
+        <HistoryIcon
+          sx={{ fontSize: 60, color: alpha("#FF3838", 0.3), mb: 2 }}
+        />
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: 500, color: "#050E3C", mb: 1 }}
+        >
           Prethodni parovi
         </Typography>
         <Typography variant="body1" sx={{ color: "text.secondary" }}>
-          {userName}, još nemaš prethodnih parova. Ovo je tvoja prva godina u Secret Santa!
+          {userName}, još nemaš prethodnih parova. Ovo je tvoja prva godina u
+          Secret Santa!
         </Typography>
       </Box>
     );
@@ -49,16 +54,18 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
   return (
     <Box>
       <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 4 }}>
-        <Box sx={{ 
-          width: 50, 
-          height: 50, 
-          borderRadius: '50%', 
-          bgcolor: alpha('#1B5E20', 0.1),
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-          <HistoryIcon sx={{ fontSize: 28, color: '#1B5E20' }} />
+        <Box
+          sx={{
+            width: 50,
+            height: 50,
+            borderRadius: "50%",
+            bgcolor: alpha("#1B5E20", 0.1),
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <HistoryIcon sx={{ fontSize: 28, color: "#1B5E20" }} />
         </Box>
         <Box>
           <Typography variant="h4" sx={{ fontWeight: 600, color: "#050E3C" }}>
@@ -78,31 +85,34 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
             sx={{
               p: 3,
               borderRadius: 3,
-              // borderLeft: '3px solid',
-              // borderLeftColor: '#1B5E20',
-              backgroundColor: alpha('#1B5E20', 0.12),
+              backgroundColor: alpha("#1B5E20", 0.12),
             }}
           >
-            <Stack 
-              direction="row" 
-              alignItems="center" 
+            <Stack
+              direction="row"
+              alignItems="center"
               justifyContent="space-between"
               sx={{ mb: 2 }}
             >
               <Stack direction="row" alignItems="center" spacing={2}>
-                <Box sx={{ 
-                  width: 40, 
-                  height: 40, 
-                  borderRadius: '50%', 
-                  bgcolor: alpha('#1B5E20', 0.1),
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                  <CalendarTodayIcon sx={{ fontSize: 16, color: '#1B5E20' }} />
+                <Box
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    bgcolor: alpha("#1B5E20", 0.1),
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <CalendarTodayIcon sx={{ fontSize: 16, color: "#1B5E20" }} />
                 </Box>
                 <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 400, color: "#050E3C" }}>
+                  <Typography
+                    variant="h6"
+                    sx={{ fontWeight: 400, color: "#050E3C" }}
+                  >
                     {year}. godina
                   </Typography>
                 </Box>
@@ -116,43 +126,57 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
                   variant="outlined"
                   sx={{
                     borderRadius: 2,
-                    borderLeft: '3px solid',
-                    borderLeftColor: '#FF3838',
+                    borderLeft: "3px solid",
+                    borderLeftColor: "#FF3838",
                   }}
                 >
                   <CardContent sx={{ py: 2 }}>
                     <Stack direction="row" alignItems="center" spacing={2}>
-                      <Box sx={{ 
-                        minWidth: 36,
-                        height: 36, 
-                        borderRadius: '50%', 
-                        bgcolor: alpha('#FF3838', 0.1),
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FF3838',
-                        fontSize: '0.875rem',
-                        fontWeight: 600,
-                      }}>
+                      <Box
+                        sx={{
+                          minWidth: 36,
+                          height: 36,
+                          borderRadius: "50%",
+                          bgcolor: alpha("#FF3838", 0.1),
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#FF3838",
+                          fontSize: "0.875rem",
+                          fontWeight: 600,
+                        }}
+                      >
                         <CardGiftcardIcon fontSize="small" />
                       </Box>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="body1" sx={{ fontWeight: 500, color: "#050E3C" }}>
-                        Ti → {pair.receiver.firstName} {pair.receiver.lastName}
+                        <Typography
+                          variant="body1"
+                          sx={{ fontWeight: 500, color: "#050E3C" }}
+                        >
+                          Ti → {pair.receiver.firstName}{" "}
+                          {pair.receiver.lastName}
                         </Typography>
-                        <Stack 
-                          direction="row" 
-                          alignItems="center" 
+                        <Stack
+                          direction="row"
+                          alignItems="center"
                           spacing={2}
                           sx={{ mt: 0.5 }}
                         >
-                          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "text.secondary" }}
+                          >
                             📧 {pair.receiver.email}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: "text.secondary" }}>
-                            📅 {new Date(pair.createdAt).toLocaleDateString('sr-RS')}
+                          <Typography
+                            variant="caption"
+                            sx={{ color: "text.secondary" }}
+                          >
+                            📅{" "}
+                            {new Date(pair.createdAt).toLocaleDateString(
+                              "sr-RS"
+                            )}
                           </Typography>
-                         
                         </Stack>
                       </Box>
                     </Stack>
@@ -169,13 +193,13 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
           p: 3,
           mt: 2,
           borderRadius: 3,
-          backgroundColor: alpha('#050E3C', 0.05),
-          border: '1px solid',
-          borderColor: alpha('#050E3C', 0.1),
+          backgroundColor: alpha("#050E3C", 0.05),
+          border: "1px solid",
+          borderColor: alpha("#050E3C", 0.1),
         }}
       >
         <Stack direction="row" spacing={4} justifyContent="center">
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: "center" }}>
             <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {pairs.length}
             </Typography>
@@ -183,7 +207,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
               ukupno parova
             </Typography>
           </Box>
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: "center" }}>
             <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {sortedYears.length}
             </Typography>
@@ -191,7 +215,7 @@ export default function PreviousPairs({ pairs, userName }: PreviousPairsProps) {
               godina učestvovanja
             </Typography>
           </Box>
-          <Box sx={{ textAlign: 'center' }}>
+          <Box sx={{ textAlign: "center" }}>
             <Typography variant="h5" sx={{ fontWeight: 500, color: "#050E3C" }}>
               {new Date(pairs[0]?.createdAt).getFullYear()}
             </Typography>

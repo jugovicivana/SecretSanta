@@ -42,7 +42,6 @@ namespace API.Controllers
         [HttpPost("refresh")]
         public async Task<ActionResult<UserTokenDto>> Refresh(RefreshRequest request)
         {
-            // var refreshToken = Request.Cookies["refreshToken"];
             var refreshToken = request.Token;
 
             if (string.IsNullOrWhiteSpace(refreshToken))
@@ -88,7 +87,7 @@ namespace API.Controllers
 
         [Authorize]
         [HttpGet("currentUser")]
-        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        public async Task<ActionResult<UserTokenDto>> GetCurrentUser()
         {
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
@@ -107,7 +106,7 @@ namespace API.Controllers
                     return Ok(null);
                 }
 
-                var userDto = await _userService.GetUserById(userId);
+                var userDto = await _userService.GetCurrentUser(userId, token);
 
                 return Ok(userDto);
             }
@@ -152,13 +151,13 @@ namespace API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpGet("pendingAdmins")]
-        public async Task<ActionResult<List<UserDto>>> GetPendingAdmins()
+        [HttpGet("pendingUsers")]
+        public async Task<ActionResult<List<UserDto>>> GetPendingUsers()
         {
             try
             {
-                var pendingAdmins = await _userService.GetPendingAdmins();
-                return Ok(pendingAdmins);
+                var pendingUsers = await _userService.GetPendingUsers();
+                return Ok(pendingUsers);
             }
             catch (Exception ex)
             {
@@ -166,17 +165,17 @@ namespace API.Controllers
             }
         }
         [Authorize(Roles = "Admin")]
-        [HttpPut("approveAdmin/{id}")]
-        public async Task<ActionResult<UserDto>> ApproveAdmin(int id)
+        [HttpPut("approveUser/{id}")]
+        public async Task<ActionResult<UserDto>> ApproveUser(int id)
         {
             try
             {
-                var approvedUser = await _userService.ApproveAdminAsync(id);
+                var approvedUser = await _userService.ApproveUserAsync(id);
                 return Ok(approvedUser);
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("nije Admin"))
+                if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("greška"))
                 {
                     return BadRequest(ex.Message);
                 }
@@ -191,12 +190,12 @@ namespace API.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("rejectAdmin/{id}")]
-        public async Task<ActionResult> RejectAdmin(int id)
+        [HttpDelete("rejectUser/{id}")]
+        public async Task<ActionResult> RejectUser(int id)
         {
             try
             {
-                var deletedUserId = await _userService.RejectAdminRequest(id);
+                var deletedUserId = await _userService.RejectUserRequest(id);
                 return Ok(new
                 {
                     deletedUserId,
@@ -205,7 +204,7 @@ namespace API.Controllers
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("nije Admin"))
+                if (ex.Message.Contains("nije pronađen") || ex.Message.Contains("greška"))
                     return BadRequest(ex.Message);
 
                 if (ex.Message.Contains("već odobren"))

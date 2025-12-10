@@ -13,13 +13,13 @@ import type {
 interface AccountState {
   user: UserWithToken | null;
   status: string;
-  pendingAdmins: User[] | [];
+  pendingUsers: User[] | [];
 }
 
 const initialState: AccountState = {
   user: null,
   status: "idle",
-  pendingAdmins: [],
+  pendingUsers: [],
 };
 
 export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
@@ -27,11 +27,13 @@ export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
   async (data, thunkAPI) => {
     try {
       const response: UserTokenDto = await agent.Account.login(data);
+
       const userWithToken: UserWithToken = {
-  ...response.user,
-  accessToken: response.accessToken,
-  refreshToken: response.refreshToken,
-};
+        ...response.user,
+        accessToken: response.accessToken,
+        refreshToken: response.refreshToken,
+        expiresIn: response.expiresIn,
+      };
 
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
@@ -64,12 +66,16 @@ export const fetchCurrentUser = createAsyncThunk<UserWithToken | null>(
         localStorage.removeItem("user");
         return null;
       }
-      const userWithToken: UserWithToken = {
-  ...response.user,
-  accessToken: response.accessToken,
-  refreshToken: response.refreshToken,
-};
+      const existingUser = localStorage.getItem("user");
+      if (!existingUser) return null;
+      const parsedUser = JSON.parse(existingUser);
 
+      const userWithToken: UserWithToken = {
+        ...response.user,
+        accessToken: response.accessToken,
+        refreshToken: parsedUser.refreshToken,
+        expiresIn: parsedUser.expiresIn,
+      };
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
     } catch (error: any) {
@@ -82,11 +88,11 @@ export const fetchCurrentUser = createAsyncThunk<UserWithToken | null>(
   }
 );
 
-export const rejectAdmin = createAsyncThunk<void, number>(
-  "account/rejectAdmin",
+export const rejectUser = createAsyncThunk<void, number>(
+  "account/rejectUser",
   async (userId, thunkAPI) => {
     try {
-      await agent.Account.rejectAdmin(userId);
+      await agent.Account.rejectUser(userId);
     } catch (error: any) {
       const message =
         error?.response?.data || error?.message || "Došlo je do greške.";
@@ -95,11 +101,11 @@ export const rejectAdmin = createAsyncThunk<void, number>(
   }
 );
 
-export const fetchPendingAdmins = createAsyncThunk<User[]>(
-  "account/fetchPendingAdmins",
+export const fetchPendingUsers = createAsyncThunk<User[]>(
+  "account/fetchPendingUsers",
   async (_, thunkAPI) => {
     try {
-      const users = await agent.Account.getAllPendingAdmins();
+      const users = await agent.Account.getAllPendingUsers();
       return users;
     } catch (error: any) {
       const message =
@@ -109,11 +115,11 @@ export const fetchPendingAdmins = createAsyncThunk<User[]>(
   }
 );
 
-export const approveAdmin = createAsyncThunk<number, number>(
-  "account/approveAdmin",
+export const approveUser = createAsyncThunk<number, number>(
+  "account/approveUser",
   async (id, thunkAPI) => {
     try {
-      await agent.Account.approveAdmin(id);
+      await agent.Account.approveUser(id);
       return id;
     } catch (error: any) {
       const message =
@@ -169,40 +175,40 @@ export const accountSlice = createSlice({
       state.status = "pendingFetchCurrentUser";
     });
 
-    builder.addCase(approveAdmin.rejected, (state) => {
-      state.status = "rejectedApproveAdmin";
+    builder.addCase(approveUser.rejected, (state) => {
+      state.status = "rejectedApproveUser";
     });
-    builder.addCase(approveAdmin.fulfilled, (state, action) => {
+    builder.addCase(approveUser.fulfilled, (state, action) => {
       state.status = "succeeded";
-      state.pendingAdmins = state.pendingAdmins.filter(
+      state.pendingUsers = state.pendingUsers.filter(
         (a) => a.id != action.payload
       );
     });
-    builder.addCase(approveAdmin.pending, (state) => {
-      state.status = "pendingApproveAdmin";
+    builder.addCase(approveUser.pending, (state) => {
+      state.status = "pendingApproveUser";
     });
-    builder.addCase(fetchPendingAdmins.rejected, (state) => {
-      state.status = "rejectedFetchPendingAdmins";
+    builder.addCase(fetchPendingUsers.rejected, (state) => {
+      state.status = "rejectedFetchPendingUsers";
     });
-    builder.addCase(fetchPendingAdmins.fulfilled, (state, action) => {
+    builder.addCase(fetchPendingUsers.fulfilled, (state, action) => {
       state.status = "succeeded";
-      state.pendingAdmins = action.payload;
+      state.pendingUsers = action.payload;
     });
-    builder.addCase(fetchPendingAdmins.pending, (state) => {
-      state.status = "pendingFetchPendingAdmins";
+    builder.addCase(fetchPendingUsers.pending, (state) => {
+      state.status = "pendingFetchPendingUsers";
     });
-    builder.addCase(rejectAdmin.fulfilled, (state, action) => {
+    builder.addCase(rejectUser.fulfilled, (state, action) => {
       state.status = "succeeded";
       const rejectedUserId = action.meta.arg;
-      state.pendingAdmins = state.pendingAdmins.filter(
+      state.pendingUsers = state.pendingUsers.filter(
         (a) => a.id !== rejectedUserId
       );
     });
-    builder.addCase(rejectAdmin.pending, (state) => {
-      state.status = "pendingRejectAdmin";
+    builder.addCase(rejectUser.pending, (state) => {
+      state.status = "pendingRejectUser";
     });
-    builder.addCase(rejectAdmin.rejected, (state) => {
-      state.status = "failedRejectAdmin";
+    builder.addCase(rejectUser.rejected, (state) => {
+      state.status = "failedRejectUser";
     });
   },
 });
