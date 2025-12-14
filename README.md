@@ -32,7 +32,10 @@ Aplikacija Secret Santa omogućava online organizaciju igre razmjene poklona unu
  
 ## Pokretanje  
 ### Baza:
-- Potrebno je importovati sql bazu (fajl *secretSanta_script.sql*) u SQL Server Management Studio.
+- Potrebno je importovati sql bazu, tj. pokrenuti skriptu (fajl *secretSanta_script.sql*) u SQL Server Management Studio.
+- Kredencijali za pristup nakon popunjavanja baze su:
+  email: ivana@test.com   password: sifra123 (administratorski nalog)
+  email: ivan@test.com    password: sifra123 (nalog zaposlenog)
   
 ### Backend:  
 - Nakon otvaranja aplikacije u Visual Studio Code-u, potrebno je u terminal ukucati komandu *dotnet watch run*.  Ukoliko je to neophodno, prije pokretanja je potrebno promijeniti konekcioni string tako da on odgovara instanci SQL Servera koju imate instaliranu na vašem računaru.
