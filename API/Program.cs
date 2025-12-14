@@ -72,6 +72,11 @@ if (app.Environment.IsDevelopment())
         c.ConfigObject.AdditionalItems.Add("persistAuthorization", "true");
     });
 }
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<StoreContext>();
+    dbContext.Database.Migrate();
+}
 
 
 app.UseCors(opt =>

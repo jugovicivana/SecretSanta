@@ -31,7 +31,6 @@ export const signInUser = createAsyncThunk<UserWithToken, LoginDto>(
       const userWithToken: UserWithToken = {
         ...response.user,
         accessToken: response.accessToken,
-        refreshToken: response.refreshToken,
         expiresIn: response.expiresIn,
       };
 
@@ -68,14 +67,13 @@ export const fetchCurrentUser = createAsyncThunk<UserWithToken | null>(
       }
       const existingUser = localStorage.getItem("user");
       if (!existingUser) return null;
-      const parsedUser = JSON.parse(existingUser);
-
+      
       const userWithToken: UserWithToken = {
         ...response.user,
         accessToken: response.accessToken,
-        refreshToken: parsedUser.refreshToken,
-        expiresIn: parsedUser.expiresIn,
+        expiresIn: response.expiresIn
       };
+
       localStorage.setItem("user", JSON.stringify(userWithToken));
       return userWithToken;
     } catch (error: any) {

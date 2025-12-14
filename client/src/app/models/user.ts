@@ -16,15 +16,14 @@ export interface Role {
 export interface UserTokenDto {
   user: User;
   accessToken: string;
-  expiresIn: number;       
+  expiresIn: number;
   refreshToken: string;
 }
 
 export interface UserWithToken extends User {
   accessToken: string;
-  refreshToken: string;
-    expiresIn: number;       
-
+  refreshToken?: string;
+  expiresIn: number;
 }
 
 export interface LoginDto {

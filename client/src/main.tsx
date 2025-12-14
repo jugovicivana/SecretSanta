@@ -9,10 +9,10 @@ import { RouterProvider } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <>
     <ToastContainer position="bottom-right" hideProgressBar theme="colored" />
     <Provider store={store}>
       <RouterProvider router={router} />
     </Provider>
-  </StrictMode>
+  </>
 );

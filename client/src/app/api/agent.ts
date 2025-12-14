@@ -30,6 +30,11 @@ axios.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest: any = error.config;
 
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      return Promise.reject(error);
+    }
+    
     const errorMessage =
       (error.response?.data as any)?.message ||
       error.message ||
@@ -51,12 +56,15 @@ axios.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const res: UserTokenDto = await Account.refreshToken();
+
         const userWithToken = {
           ...res.user,
           accessToken: res.accessToken,
-          refreshToken: res.refreshToken,
+          expiresIn: res.expiresIn,
         };
+
         localStorage.setItem("user", JSON.stringify(userWithToken));
+
         originalRequest.headers[
           "Authorization"
         ] = `Bearer ${userWithToken.accessToken}`;

@@ -30,7 +30,6 @@ namespace API.Controllers
             {
                 var result = await _tokenService.Authenticate(loginDto);
                 SetRefreshCookie(result.RefreshToken);
-
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,18 +39,18 @@ namespace API.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<ActionResult<UserTokenDto>> Refresh(RefreshRequest request)
+        public async Task<ActionResult<UserTokenDto>> Refresh()
         {
-            var refreshToken = request.Token;
+            var refreshToken = Request.Cookies["refreshToken"];
 
             if (string.IsNullOrWhiteSpace(refreshToken))
-                return NoContent();
+                return Unauthorized();
 
             var result = await _tokenService.ValidateRefreshToken(refreshToken);
             if (result == null)
-                return NoContent();
-            SetRefreshCookie(result.RefreshToken);
+                return Unauthorized();
 
+            SetRefreshCookie(result.RefreshToken);
             return Ok(result);
         }
 
